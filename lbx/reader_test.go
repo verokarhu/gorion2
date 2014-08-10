@@ -9,6 +9,7 @@ var (
 	smacker  = []byte("SMK4datadatadata")
 	garbage  = []byte("garbage")
 	audio    = []byte{2, 0, 173, 254, 0, 0, 0, 0, 20, 0, 0, 0, 24, 0, 0, 0, 28, 0, 0, 0, 0x52, 0x49, 0x46, 0x46, 0x52, 0x49, 0x46, 0x46}
+	array    = []byte{1, 0, 173, 254, 0, 0, 0, 0, 16, 0, 0, 0, 26, 0, 0, 0, 3, 0, 2, 0, 97, 97, 98, 98, 99, 99}
 	filename = "filename"
 )
 
@@ -71,39 +72,100 @@ func TestProcessFile_Audio(t *testing.T) {
 	}
 }
 
-func TestProcessLbxHeader(t *testing.T) {
-	lbx := processLbxHeader(audio)
+func TestProcessFile_Array(t *testing.T) {
+	r := bytes.NewReader(array)
 
-	if r := lbx.NumEntries; r != 2 {
+	m, err := processFile(r)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if l := len(m); l != 3 {
+		t.Error("excepted 3, returned ", l)
+	}
+
+	if r := "1.1.blob"; m[r] == nil {
+		t.Error("excepted ", r, " to exist")
+	}
+
+	if r := "1.2.blob"; m[r] == nil {
+		t.Error("excepted ", r, " to exist")
+	}
+
+	if r := "1.3.blob"; m[r] == nil {
+		t.Error("excepted ", r, " to exist")
+	}
+
+	if r := m["1.1.blob"]; bytes.Compare(r, array[20:22]) != 0 {
+		t.Error("excepted ", array[20:22], ", returned ", r)
+	}
+
+	if r := m["1.2.blob"]; bytes.Compare(r, array[22:24]) != 0 {
+		t.Error("excepted ", array[22:24], ", returned ", r)
+	}
+
+	if r := m["1.3.blob"]; bytes.Compare(r, array[24:]) != 0 {
+		t.Error("excepted ", array[24:], ", returned ", r)
+	}
+}
+
+func TestProcessHeader(t *testing.T) {
+	h := processHeader(audio)
+
+	if r := h.NumEntries; r != 2 {
 		t.Error("expected 2, returned", r)
 	}
 
-	if r := lbx.Magic; r != 65197 {
+	if r := h.Magic; r != 65197 {
 		t.Error("expected 65197, returned", r)
 	}
 
-	if r := lbx.Reserved; r != 0 {
+	if r := h.Reserved; r != 0 {
 		t.Error("expected 0, returned", r)
 	}
 
-	if r := lbx.FileType; r != 0 {
+	if r := h.FileType; r != 0 {
 		t.Error("expected 0, returned", r)
 	}
 
-	if l := len(lbx.Offsets); l != 3 {
+	if l := len(h.Offsets); l != 3 {
 		t.Error("expected 3 results, returned", l)
 	}
 
-	if r := lbx.Offsets[0]; r != 20 {
+	if r := h.Offsets[0]; r != 20 {
 		t.Error("expected 20, returned", r)
 	}
 
-	if r := lbx.Offsets[1]; r != 24 {
+	if r := h.Offsets[1]; r != 24 {
 		t.Error("expected 24, returned", r)
 	}
 
-	if r := lbx.Offsets[2]; r != 28 {
+	if r := h.Offsets[2]; r != 28 {
 		t.Error("expected 28, returned", r)
+	}
+}
+
+func TestProcessArrayHeader_Array(t *testing.T) {
+	h, ok := processArrayHeader(array[16:])
+
+	if r := h.NumElements; r != 3 {
+		t.Error("expected 3, returned", r)
+	}
+
+	if r := h.ElementSize; r != 2 {
+		t.Error("expected 2, returned", r)
+	}
+
+	if !ok {
+		t.Error("expected true, returned false")
+	}
+}
+
+func TestProcessArrayHeader_Garbage(t *testing.T) {
+	_, ok := processArrayHeader(garbage)
+
+	if ok {
+		t.Error("expected false, returned true")
 	}
 }
 
