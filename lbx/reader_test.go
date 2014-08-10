@@ -8,7 +8,7 @@ import (
 var (
 	smacker  = []byte("SMK4datadatadata")
 	garbage  = []byte("garbage")
-	audio    = []byte{2, 0, 173, 254, 0, 0, 0, 0, 16, 0, 0, 0, 20, 0, 0, 0, 0x52, 0x49, 0x46, 0x46, 0x52, 0x49, 0x46, 0x46}
+	audio    = []byte{2, 0, 173, 254, 0, 0, 0, 0, 20, 0, 0, 0, 24, 0, 0, 0, 28, 0, 0, 0, 0x52, 0x49, 0x46, 0x46, 0x52, 0x49, 0x46, 0x46}
 	filename = "filename"
 )
 
@@ -62,12 +62,12 @@ func TestProcessFile_Audio(t *testing.T) {
 		t.Error("excepted ", r, " to exist")
 	}
 
-	if r := m["1.wav"]; bytes.Compare(r, audio[16:20]) != 0 {
-		t.Error("excepted ", audio[16:20], ", returned ", r)
+	if r := m["1.wav"]; bytes.Compare(r, audio[20:24]) != 0 {
+		t.Error("excepted ", audio[20:24], ", returned ", r)
 	}
 
-	if r := m["2.wav"]; bytes.Compare(r, audio[20:]) != 0 {
-		t.Error("excepted ", audio[20:], ", returned ", r)
+	if r := m["2.wav"]; bytes.Compare(r, audio[24:28]) != 0 {
+		t.Error("excepted ", audio[24:28], ", returned ", r)
 	}
 }
 
@@ -90,16 +90,20 @@ func TestProcessLbxHeader(t *testing.T) {
 		t.Error("expected 0, returned", r)
 	}
 
-	if l := len(lbx.Offsets); l != 2 {
-		t.Error("expected 2 results, returned", l)
+	if l := len(lbx.Offsets); l != 3 {
+		t.Error("expected 3 results, returned", l)
 	}
 
-	if r := lbx.Offsets[0]; r != 16 {
-		t.Error("expected 15, returned", r)
+	if r := lbx.Offsets[0]; r != 20 {
+		t.Error("expected 20, returned", r)
 	}
 
-	if r := lbx.Offsets[1]; r != 20 {
-		t.Error("expected 19, returned", r)
+	if r := lbx.Offsets[1]; r != 24 {
+		t.Error("expected 24, returned", r)
+	}
+
+	if r := lbx.Offsets[2]; r != 28 {
+		t.Error("expected 28, returned", r)
 	}
 }
 

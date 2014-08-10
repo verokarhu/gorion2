@@ -33,15 +33,11 @@ func processFile(r io.Reader) (map[string][]byte, error) {
 	if lbxHeader.Magic == 65197 {
 		for i := 0; i < int(lbxHeader.NumEntries); i++ {
 			offset := lbxHeader.Offsets[i]
-			if string(b[offset:offset+4]) == "RIFF" {
+			endoffset := lbxHeader.Offsets[i+1]
+			chunk := b[offset:endoffset]
+			if string(chunk[0:4]) == "RIFF" {
 				k := fmt.Sprintf("%d.wav", i+1)
-
-				if int(lbxHeader.NumEntries) == i+1 {
-					m[k] = b[offset:]
-				} else {
-					endoffset := lbxHeader.Offsets[i+1]
-					m[k] = b[offset:endoffset]
-				}
+				m[k] = chunk
 			}
 		}
 
@@ -60,8 +56,8 @@ func processLbxHeader(b []byte) lbxHeader {
 	binary.Read(buf, binary.LittleEndian, &r.Reserved)
 	binary.Read(buf, binary.LittleEndian, &r.FileType)
 
-	r.Offsets = make([]uint32, r.NumEntries, r.NumEntries)
-	for i := 0; i < int(r.NumEntries); i++ {
+	r.Offsets = make([]uint32, r.NumEntries+1, r.NumEntries+1)
+	for i := 0; i < int(r.NumEntries)+1; i++ {
 		binary.Read(buf, binary.LittleEndian, &r.Offsets[i])
 	}
 
