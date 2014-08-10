@@ -2,6 +2,7 @@ package lbx
 
 import (
 	"bytes"
+	"io/ioutil"
 	"testing"
 )
 
@@ -46,7 +47,12 @@ func TestDecode_Smacker(t *testing.T) {
 		t.Error("expected 1 result, returned", l)
 	}
 
-	if bytes.Compare(m[filename+".1.smk"], smacker) != 0 {
+	b, err := ioutil.ReadAll(m[filename+".1.smk"])
+	if err != nil {
+		t.Error(err)
+	}
+
+	if bytes.Compare(b, smacker) != 0 {
 		t.Error("excepted ", smacker, ", returned ", m[filename+".1.smk"])
 	}
 }
