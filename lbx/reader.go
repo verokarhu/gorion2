@@ -1,7 +1,6 @@
 package lbx
 
 import (
-	"bytes"
 	"io"
 	"io/ioutil"
 )
@@ -31,7 +30,7 @@ func (d *decoder) processHeader() (int, error) {
 }
 
 // Decode reads the contents of an lbx file, decodes the contained files and returns readers that contain the converted files
-func Decode(r io.Reader, name string) (map[string]io.Reader, error) {
+func Decode(r io.Reader, name string) (map[string][]byte, error) {
 	d := &decoder{r: r}
 	t, err := d.processHeader()
 
@@ -39,14 +38,14 @@ func Decode(r io.Reader, name string) (map[string]io.Reader, error) {
 		return nil, err
 	}
 
-	m := make(map[string]io.Reader)
+	m := make(map[string][]byte)
 	switch t {
 	case filetypeSmacker:
 		b, err := ioutil.ReadAll(r)
 		if err != nil {
 			return nil, err
 		}
-		m[name+".1.smk"] = bytes.NewReader(append(d.tmp[:12], b[:]...))
+		m[name+".1.smk"] = append(d.tmp[:12], b[:]...)
 	}
 
 	return m, nil
