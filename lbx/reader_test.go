@@ -8,8 +8,10 @@ import (
 var (
 	garbage = []byte("garbage")
 	lbx     = []byte{
-		2, 0, 173, 254, 0, 0, 0, 0, 20, 0, 0, 0, 24, 0, 0, 0,
-		28, 0, 0, 0, 0x52, 0x49, 0x46, 0x46, 0x52, 0x49, 0x46, 0x46}
+		2, 0, 173, 254, 0, 0, 0, 0,
+		20, 0, 0, 0, 24, 0, 0, 0,
+		28, 0, 0, 0, 0x52, 0x49, 0x46, 0x46,
+		0x52, 0x49, 0x46, 0x46}
 )
 
 func TestDecode_Garbage(t *testing.T) {
@@ -17,11 +19,11 @@ func TestDecode_Garbage(t *testing.T) {
 
 	m, err := Decode(f)
 	if err == nil {
-		t.Error(err)
+		t.Fatal("expected an error")
 	}
 
 	if l := len(m); l != 0 {
-		t.Error("excepted 0, returned ", l)
+		t.Fatal("excepted 0, returned ", l)
 	}
 }
 
@@ -30,19 +32,19 @@ func TestDecode_LBX(t *testing.T) {
 
 	decoded, err := Decode(f)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if l := len(decoded); l != 2 {
-		t.Error("excepted 2, returned ", l)
+		t.Fatal("excepted 2, returned ", l)
 	}
 
-	if r := decoded[0]; bytes.Compare(r, lbx[20:24]) != 0 {
-		t.Error("excepted ", lbx[20:24], ", returned ", r)
+	if c := [][]byte{decoded[0], lbx[20:24]}; bytes.Compare(c[0], c[1]) != 0 {
+		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 
-	if r := decoded[1]; bytes.Compare(r, lbx[24:28]) != 0 {
-		t.Error("excepted ", lbx[24:28], ", returned ", r)
+	if c := [][]byte{decoded[1], lbx[24:28]}; bytes.Compare(c[0], c[1]) != 0 {
+		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 }
 
@@ -66,7 +68,7 @@ func TestProcessHeader(t *testing.T) {
 	}
 
 	if l := len(h.Offsets); l != 3 {
-		t.Error("expected 3 results, returned", l)
+		t.Fatal("expected 3 results, returned", l)
 	}
 
 	if r := h.Offsets[0]; r != 20 {

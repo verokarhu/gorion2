@@ -36,8 +36,9 @@ func processHeader(b []byte) header {
 
 	binary.Read(reader, binary.LittleEndian, &sh)
 
-	r := header{sh, make([]uint32, sh.NumEntries+1, sh.NumEntries+1)}
-	for i := 0; i < int(r.NumEntries)+1; i++ {
+	numentries := int(sh.NumEntries + 1)
+	r := header{sh, make([]uint32, numentries, numentries)}
+	for i := 0; i < numentries; i++ {
 		binary.Read(reader, binary.LittleEndian, &r.Offsets[i])
 	}
 
