@@ -21,6 +21,7 @@ type header struct {
 	Offsets []uint32
 }
 
+// Decode reconstructs an image based on a blend of the external and the internal palette (if it exists)
 func Decode(r io.ReadSeeker, p color.Palette) ([]image.Paletted, error) {
 	sh := subHeader{}
 	binary.Read(r, binary.LittleEndian, &sh)
