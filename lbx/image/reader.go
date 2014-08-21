@@ -2,6 +2,7 @@ package image
 
 import (
 	"encoding/binary"
+	"errors"
 	"image"
 	"image/color"
 	"io"
@@ -41,10 +42,10 @@ func Decode(r io.ReadSeeker, p color.Palette) ([]image.Paletted, error) {
 	for i := 0; i < int(h.NumFrames); i++ {
 		r.Seek(int64(h.Offsets[i]), 0)
 
-		size := h.Width * h.Height
+		size := int(h.Width) * int(h.Height)
 		img := image.Paletted{Stride: 1, Palette: p, Rect: image.Rect(0, 0, int(h.Width), int(h.Height)), Pix: make([]byte, size, size)}
-		var numPix, xIndent, yIndent, t uint16
-		var pos int
+		var numPix, yIndent, t uint16
+		var xPos, yPos int
 
 		binary.Read(r, binary.LittleEndian, &t)
 
@@ -59,11 +60,10 @@ func Decode(r io.ReadSeeker, p color.Palette) ([]image.Paletted, error) {
 
 				if numPix > 0 {
 					binary.Read(r, binary.LittleEndian, &t)
-					xIndent += t
-					pos += int(xIndent)
+					xPos += int(t)
 
 					for j := 0; j < int(numPix); j++ {
-						binary.Read(r, binary.LittleEndian, &img.Pix[pos+j])
+						binary.Read(r, binary.LittleEndian, &img.Pix[yPos*int(h.Width)+xPos+j])
 					}
 
 					// if the number of pixels is uneven there is a filler byte at the end
@@ -72,7 +72,7 @@ func Decode(r io.ReadSeeker, p color.Palette) ([]image.Paletted, error) {
 						binary.Read(r, binary.LittleEndian, &b)
 					}
 
-					pos += int(numPix)
+					xPos += int(numPix)
 				} else {
 					binary.Read(r, binary.LittleEndian, &yIndent)
 
@@ -81,10 +81,12 @@ func Decode(r io.ReadSeeker, p color.Palette) ([]image.Paletted, error) {
 						break
 					}
 
-					xIndent = 0
-					pos += int(yIndent * h.Width)
+					xPos = 0
+					yPos += int(yIndent)
 				}
 			}
+		} else {
+			return nil, errors.New("frame didn't start with 1")
 		}
 
 		result[i] = img
