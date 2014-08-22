@@ -24,6 +24,16 @@ var (
 	expectedpalette = color.Palette{
 		10: color.NRGBA{40, 44, 48, 0},
 		11: color.NRGBA{200, 196, 192, 255},
+		12: color.NRGBA{2, 1, 2, 0},
+	}
+	basepalette = color.Palette{
+		10:  color.NRGBA{40, 44, 48, 0},
+		11:  color.NRGBA{2, 1, 1, 255},
+		255: nil,
+	}
+	overridepalette = color.Palette{
+		11: color.NRGBA{200, 196, 192, 255},
+		12: color.NRGBA{2, 1, 2, 0},
 	}
 )
 
@@ -99,6 +109,26 @@ func TestDecodePalette(t *testing.T) {
 	}
 
 	if c := []color.Color{p[11], expectedpalette[11]}; c[0] != c[1] {
+		t.Error("excepted ", c[1], ", returned ", c[0])
+	}
+}
+
+func TestMergePalettes(t *testing.T) {
+	p := MergePalettes(basepalette, overridepalette)
+
+	if c := []int{len(p), 256}; c[0] != c[1] {
+		t.Fatal("excepted ", c[1], ", returned ", c[0])
+	}
+
+	if c := []color.Color{p[10], expectedpalette[10]}; c[0] != c[1] {
+		t.Error("excepted ", c[1], ", returned ", c[0])
+	}
+
+	if c := []color.Color{p[11], expectedpalette[11]}; c[0] != c[1] {
+		t.Error("excepted ", c[1], ", returned ", c[0])
+	}
+
+	if c := []color.Color{p[12], expectedpalette[12]}; c[0] != c[1] {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 }

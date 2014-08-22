@@ -127,3 +127,15 @@ func DecodePalette(r io.Reader) (p color.Palette) {
 func isInternalPalette(f uint16) bool {
 	return f >= 4096
 }
+
+// MergePalettes mixes the override colors into the base palette. The base palette must be 256 colors long.
+func MergePalettes(base color.Palette, override color.Palette) (mixed color.Palette) {
+	mixed = base
+	for k, v := range override {
+		if v != nil {
+			mixed[k] = v
+		}
+	}
+
+	return
+}
