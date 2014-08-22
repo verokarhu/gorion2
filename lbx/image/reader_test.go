@@ -88,10 +88,7 @@ func TestDecode(t *testing.T) {
 func TestDecodePalette(t *testing.T) {
 	f := bytes.NewReader(lbximg[24:36])
 
-	p, err := DecodePalette(f)
-	if err != nil {
-		t.Fatal(err)
-	}
+	p := DecodePalette(f)
 
 	if c := []int{len(p), 256}; c[0] != c[1] {
 		t.Fatal("excepted ", c[1], ", returned ", c[0])

@@ -37,9 +37,7 @@ func Decode(r io.ReadSeeker) (result []image.Paletted, err error) {
 	var p color.Palette
 
 	if isInternalPalette(sh.Flags) {
-		if p, err = DecodePalette(r); err != nil {
-			return
-		}
+		p = DecodePalette(r)
 	}
 
 	for i := 0; i < int(h.NumFrames); i++ {
@@ -110,19 +108,15 @@ type paletteColor struct {
 	B byte
 }
 
-func DecodePalette(r io.Reader) (p color.Palette, err error) {
+func DecodePalette(r io.Reader) (p color.Palette) {
 	ph := paletteHeader{}
-	if err = binary.Read(r, binary.LittleEndian, &ph); err != nil {
-		return
-	}
+	binary.Read(r, binary.LittleEndian, &ph)
 
 	p = make(color.Palette, 256, 256)
 
 	pc := paletteColor{}
 	for i := 0; i < int(ph.Numcolors); i++ {
-		if err = binary.Read(r, binary.LittleEndian, &pc); err != nil {
-			return
-		}
+		binary.Read(r, binary.LittleEndian, &pc)
 
 		p[int(ph.Index)+i] = color.NRGBA{4 * pc.R, 4 * pc.G, 4 * pc.B, 255 * pc.A}
 	}
