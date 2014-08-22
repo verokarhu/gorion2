@@ -22,18 +22,18 @@ var (
 		10, 10, 11, 11, 0, 0, 0xe8, 0x03,
 	}
 	expectedpalette = color.Palette{
-		10: color.NRGBA{40, 44, 48, 0},
-		11: color.NRGBA{200, 196, 192, 255},
-		12: color.NRGBA{2, 1, 2, 0},
+		10: color.NRGBA{40, 44, 48, 255},
+		11: color.NRGBA{200, 196, 192, 0},
+		12: color.NRGBA{2, 1, 2, 255},
 	}
 	basepalette = color.Palette{
-		10:  color.NRGBA{40, 44, 48, 0},
-		11:  color.NRGBA{2, 1, 1, 255},
+		10:  color.NRGBA{40, 44, 48, 255},
+		11:  color.NRGBA{2, 1, 1, 0},
 		255: nil,
 	}
 	overridepalette = color.Palette{
-		11: color.NRGBA{200, 196, 192, 255},
-		12: color.NRGBA{2, 1, 2, 0},
+		11: color.NRGBA{200, 196, 192, 0},
+		12: color.NRGBA{2, 1, 2, 255},
 	}
 )
 

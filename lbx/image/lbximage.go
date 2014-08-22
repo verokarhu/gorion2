@@ -20,7 +20,7 @@ func (i *LbxImage) At(x int, y int) color.Color {
 		return i.Palette[i.Pix[index]]
 	}
 
-	return color.NRGBA{0, 0, 0, 255}
+	return color.NRGBA{0, 0, 0, 0}
 }
 
 func (i *LbxImage) Bounds() image.Rectangle { return i.Rect }

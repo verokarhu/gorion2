@@ -121,7 +121,11 @@ func DecodePalette(r io.Reader) (p color.Palette) {
 	for i := 0; i < int(ph.Numcolors); i++ {
 		binary.Read(r, binary.LittleEndian, &pc)
 
-		p[int(ph.Index)+i] = color.NRGBA{4 * pc.R, 4 * pc.G, 4 * pc.B, 255 * pc.A}
+		if pc.A == 1 {
+			p[int(ph.Index)+i] = color.NRGBA{4 * pc.R, 4 * pc.G, 4 * pc.B, 0}
+		} else {
+			p[int(ph.Index)+i] = color.NRGBA{4 * pc.R, 4 * pc.G, 4 * pc.B, 255}
+		}
 	}
 
 	return
