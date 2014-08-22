@@ -22,8 +22,8 @@ type header struct {
 	Offsets []uint32
 }
 
-// Decode reconstructs an image based on a blend of the external and the internal palette (if it exists)
-func Decode(r io.ReadSeeker, p color.Palette) ([]image.Paletted, error) {
+// Decode converts an lbx image into a paletted image using the internal palette (if it exists)
+func Decode(r io.ReadSeeker) (result []image.Paletted, err error) {
 	sh := subHeader{}
 	binary.Read(r, binary.LittleEndian, &sh)
 
@@ -33,10 +33,13 @@ func Decode(r io.ReadSeeker, p color.Palette) ([]image.Paletted, error) {
 		binary.Read(r, binary.LittleEndian, &h.Offsets[i])
 	}
 
-	result := make([]image.Paletted, sh.NumFrames, sh.NumFrames)
+	result = make([]image.Paletted, sh.NumFrames, sh.NumFrames)
+	var p color.Palette
 
 	if isInternalPalette(sh.Flags) {
-		// read internal palette data
+		if p, err = DecodePalette(r); err != nil {
+			return
+		}
 	}
 
 	for i := 0; i < int(h.NumFrames); i++ {
@@ -92,11 +95,39 @@ func Decode(r io.ReadSeeker, p color.Palette) ([]image.Paletted, error) {
 		result[i] = img
 	}
 
-	return result, nil
+	return
 }
 
-func DecodePalette(r io.Reader) (color.Palette, error) {
-	return color.Palette{}, nil
+type paletteHeader struct {
+	Index     uint16
+	Numcolors uint16
+}
+
+type paletteColor struct {
+	A byte
+	R byte
+	G byte
+	B byte
+}
+
+func DecodePalette(r io.Reader) (p color.Palette, err error) {
+	ph := paletteHeader{}
+	if err = binary.Read(r, binary.LittleEndian, &ph); err != nil {
+		return
+	}
+
+	p = make(color.Palette, 256, 256)
+
+	pc := paletteColor{}
+	for i := 0; i < int(ph.Numcolors); i++ {
+		if err = binary.Read(r, binary.LittleEndian, &pc); err != nil {
+			return
+		}
+
+		p[int(ph.Index)+i] = color.NRGBA{4 * pc.R, 4 * pc.G, 4 * pc.B, 255 * pc.A}
+	}
+
+	return
 }
 
 func isInternalPalette(f uint16) bool {
