@@ -23,7 +23,7 @@ type header struct {
 }
 
 // Decode converts an lbx image into a paletted image using the internal palette (if it exists)
-func Decode(r io.ReadSeeker) (result []image.Paletted, err error) {
+func Decode(r io.ReadSeeker) (result []LbxImage, err error) {
 	sh := subHeader{}
 	binary.Read(r, binary.LittleEndian, &sh)
 
@@ -33,7 +33,7 @@ func Decode(r io.ReadSeeker) (result []image.Paletted, err error) {
 		binary.Read(r, binary.LittleEndian, &h.Offsets[i])
 	}
 
-	result = make([]image.Paletted, sh.NumFrames, sh.NumFrames)
+	result = make([]LbxImage, sh.NumFrames, sh.NumFrames)
 	var p color.Palette
 
 	if isInternalPalette(sh.Flags) {
@@ -44,17 +44,19 @@ func Decode(r io.ReadSeeker) (result []image.Paletted, err error) {
 		r.Seek(int64(h.Offsets[i]), 0)
 
 		size := int(h.Width) * int(h.Height)
-		img := image.Paletted{Stride: 1, Palette: p, Rect: image.Rect(0, 0, int(h.Width), int(h.Height)), Pix: make([]byte, size, size)}
+		img := LbxImage{Stride: 1, Palette: p, Rect: image.Rect(0, 0, int(h.Width), int(h.Height)), Pix: make([]byte, size, size), Visible: make([]bool, size, size)}
 		var numPix, yIndent, t uint16
 		var xPos, yPos int
+		var b byte
 
 		binary.Read(r, binary.LittleEndian, &t)
 
 		// frame always starts with 1
 		if t == 1 {
 
-			// frame Y indent, not using this for anything right now
+			// frame Y indent
 			binary.Read(r, binary.LittleEndian, &t)
+			yPos += int(t)
 
 			for {
 				binary.Read(r, binary.LittleEndian, &numPix)
@@ -64,12 +66,13 @@ func Decode(r io.ReadSeeker) (result []image.Paletted, err error) {
 					xPos += int(t)
 
 					for j := 0; j < int(numPix); j++ {
-						binary.Read(r, binary.LittleEndian, &img.Pix[yPos*int(h.Width)+xPos+j])
+						index := yPos*int(h.Width) + xPos + j
+						binary.Read(r, binary.LittleEndian, &img.Pix[index])
+						img.Visible[index] = true
 					}
 
 					// if the number of pixels is uneven there is a filler byte at the end
 					if numPix%2 != 0 {
-						var b byte
 						binary.Read(r, binary.LittleEndian, &b)
 					}
 

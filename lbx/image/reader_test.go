@@ -40,14 +40,14 @@ var (
 func TestDecode(t *testing.T) {
 	f := bytes.NewReader(lbximg)
 
-	expected := [2]image.Paletted{
-		image.Paletted{
-			Pix:    []byte{0, 11, 11, 10, 0, 0, 0, 0, 200, 200, 200, 200},
+	expected := [2]LbxImage{
+		LbxImage{
+			Pix:    []uint8{0, 11, 11, 10, 0, 0, 0, 0, 200, 200, 200, 200},
 			Stride: 1,
 			Rect:   image.Rect(0, 0, 4, 3),
 		},
-		image.Paletted{
-			Pix:    []byte{200, 200, 200, 200, 10, 10, 11, 11, 0, 0, 0, 0},
+		LbxImage{
+			Pix:    []uint8{200, 200, 200, 200, 10, 10, 11, 11, 0, 0, 0, 0},
 			Stride: 1,
 			Rect:   image.Rect(0, 0, 4, 3),
 		},
