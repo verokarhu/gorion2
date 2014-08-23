@@ -37,7 +37,7 @@ var (
 	}
 )
 
-func TestDecode(t *testing.T) {
+func Test_Decode(t *testing.T) {
 	f := bytes.NewReader(lbximg)
 
 	expected := [2]LbxImage{
@@ -95,7 +95,7 @@ func TestDecode(t *testing.T) {
 	}
 }
 
-func TestDecodePalette(t *testing.T) {
+func Test_DecodePalette(t *testing.T) {
 	f := bytes.NewReader(lbximg[24:36])
 
 	p := DecodePalette(f)
@@ -113,7 +113,7 @@ func TestDecodePalette(t *testing.T) {
 	}
 }
 
-func TestMergePalettes(t *testing.T) {
+func Test_MergePalettes(t *testing.T) {
 	p := MergePalettes(basepalette, overridepalette)
 
 	if c := []int{len(p), 256}; c[0] != c[1] {

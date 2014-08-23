@@ -14,7 +14,7 @@ var (
 		0x52, 0x49, 0x46, 0x46}
 )
 
-func TestDecode_Garbage(t *testing.T) {
+func Test_Decode_Garbage(t *testing.T) {
 	f := bytes.NewReader(garbage)
 
 	m, err := Decode(f)
@@ -27,7 +27,7 @@ func TestDecode_Garbage(t *testing.T) {
 	}
 }
 
-func TestDecode_LBX(t *testing.T) {
+func Test_Decode_LBX(t *testing.T) {
 	f := bytes.NewReader(lbx)
 
 	decoded, err := Decode(f)
@@ -48,7 +48,7 @@ func TestDecode_LBX(t *testing.T) {
 	}
 }
 
-func TestProcessHeader(t *testing.T) {
+func Test_ProcessHeader(t *testing.T) {
 	h := processHeader(lbx)
 
 	if r := h.NumEntries; r != 2 {

@@ -19,7 +19,7 @@ var (
 	}
 )
 
-func TestLbxImage_At(t *testing.T) {
+func Test_LbxImage_At(t *testing.T) {
 	if c := []color.Color{testimage.At(1, 0), testimage.Palette[11]}; c[0] != c[1] {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
