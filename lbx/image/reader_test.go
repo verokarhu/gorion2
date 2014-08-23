@@ -95,10 +95,10 @@ func Test_Decode(t *testing.T) {
 	}
 }
 
-func Test_DecodePalette(t *testing.T) {
-	f := bytes.NewReader(lbximg[24:36])
+func Test_ConvertPalette(t *testing.T) {
+	f := bytes.NewReader(lbximg[28:36])
 
-	p := DecodePalette(f)
+	p := ConvertPalette(f, 10, 2)
 
 	if c := []int{len(p), 256}; c[0] != c[1] {
 		t.Fatal("excepted ", c[1], ", returned ", c[0])

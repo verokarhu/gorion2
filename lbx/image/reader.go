@@ -37,7 +37,7 @@ func Decode(r io.ReadSeeker) (result []LbxImage, err error) {
 	var p color.Palette
 
 	if isInternalPalette(sh.Flags) {
-		p = DecodePalette(r)
+		p = decodePalette(r)
 	}
 
 	for i := 0; i < int(h.NumFrames); i++ {
@@ -111,20 +111,25 @@ type paletteColor struct {
 	B byte
 }
 
-func DecodePalette(r io.Reader) (p color.Palette) {
+func decodePalette(r io.Reader) color.Palette {
 	ph := paletteHeader{}
 	binary.Read(r, binary.LittleEndian, &ph)
 
+	return ConvertPalette(r, int(ph.Index), int(ph.Numcolors))
+}
+
+// ConvertPalette converts an 6-bit lbx palette into a color.Palette
+func ConvertPalette(r io.Reader, start int, amount int) (p color.Palette) {
 	p = make(color.Palette, 256, 256)
 
 	pc := paletteColor{}
-	for i := 0; i < int(ph.Numcolors); i++ {
+	for i := 0; i < amount; i++ {
 		binary.Read(r, binary.LittleEndian, &pc)
 
 		if pc.A == 1 {
-			p[int(ph.Index)+i] = color.NRGBA{4 * pc.R, 4 * pc.G, 4 * pc.B, 0}
+			p[start+i] = color.NRGBA{4 * pc.R, 4 * pc.G, 4 * pc.B, 0}
 		} else {
-			p[int(ph.Index)+i] = color.NRGBA{4 * pc.R, 4 * pc.G, 4 * pc.B, 255}
+			p[start+i] = color.NRGBA{4 * pc.R, 4 * pc.G, 4 * pc.B, 255}
 		}
 	}
 
