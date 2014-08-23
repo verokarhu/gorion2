@@ -9,15 +9,10 @@ import (
 	"github.com/verokarhu/gorion2/third_party/github.com/nfnt/resize"
 )
 
-type Resolution struct {
-	X uint
-	Y uint
-}
-
 type TexMap struct {
 	cache map[string]*sf.Texture
 	R     *Resource
-	Res   Resolution
+	Res   sf.Vector2u
 }
 
 func (t *TexMap) Get(key string) *sf.Texture {
