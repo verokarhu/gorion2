@@ -19,7 +19,9 @@ func (i *LbxImage) At(x int, y int) color.Color {
 	index := i.Rect.Dx()*y + x
 
 	if i.Visible[index] {
-		return i.Palette[i.Pix[index]]
+		if c := i.Palette[i.Pix[index]]; c != nil {
+			return c
+		}
 	}
 
 	return transparent
