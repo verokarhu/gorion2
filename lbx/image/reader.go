@@ -142,10 +142,12 @@ func isInternalPalette(f uint16) bool {
 
 // MergePalettes mixes the override colors into the base palette. The base palette must be 256 colors long.
 func MergePalettes(base color.Palette, override color.Palette) (mixed color.Palette) {
-	mixed = base
+	mixed = make(color.Palette, 256, 256)
 	for k, v := range override {
 		if v != nil {
 			mixed[k] = v
+		} else {
+			mixed[k] = base[k]
 		}
 	}
 
