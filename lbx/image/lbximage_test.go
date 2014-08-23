@@ -32,3 +32,13 @@ func Test_LbxImage_At(t *testing.T) {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 }
+
+func Benchmark_LbxImage_At(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		for x := 0; x < testimage.Rect.Dx(); x++ {
+			for y := 0; y < testimage.Rect.Dy(); y++ {
+				testimage.At(x, y)
+			}
+		}
+	}
+}
