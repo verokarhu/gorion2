@@ -78,12 +78,14 @@ func importImages(dirname string, r *res.Resource, dumpgif bool) error {
 		}
 
 		for k, v := range data {
+			fmt.Printf("decoding %s-%d:  ", file.Filename, k)
 			data, err := li.Decode(bytes.NewReader(v))
 
 			if err != nil {
 				fmt.Println("skipping", file.Filename, k, ":", err)
 			}
 
+			fmt.Println()
 			var frames []*li.LbxImage
 
 			if file.Palette != "all" {

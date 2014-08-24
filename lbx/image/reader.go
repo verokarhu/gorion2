@@ -3,6 +3,7 @@ package image
 import (
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"image"
 	"image/color"
 	"io"
@@ -48,6 +49,21 @@ func Decode(r io.ReadSeeker) (result []*LbxImage, err error) {
 
 	if sh.Flags&InternalPalette != 0 {
 		p = decodePalette(r)
+	}
+
+	if sh.Flags != 0 {
+		if sh.Flags&FillBackground != 0 {
+			fmt.Print("fillbackground ")
+		}
+		if sh.Flags&FunctionalColor != 0 {
+			fmt.Print("functionalcolor ")
+		}
+		if sh.Flags&InternalPalette != 0 {
+			fmt.Print("internalpalette ")
+		}
+		if sh.Flags&Junction != 0 {
+			fmt.Print("junction ")
+		}
 	}
 
 	for i := 0; i < int(h.NumFrames); i++ {
