@@ -17,7 +17,7 @@ type LbxImage struct {
 var transparent = color.NRGBA{0, 0, 0, 0}
 var black = color.NRGBA{0, 0, 0, 255}
 
-func (i *LbxImage) At(x int, y int) color.Color {
+func (i *LbxImage) At(x, y int) color.Color {
 	index := i.Rect.Dx()*y + x
 
 	if i.Visible[index] {

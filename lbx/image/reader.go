@@ -38,12 +38,12 @@ func Decode(r io.ReadSeeker) (result []LbxImage, err error) {
 	binary.Read(r, binary.LittleEndian, &sh)
 
 	numentries := int(sh.NumFrames + 1)
-	h := header{sh, make([]uint32, numentries, numentries)}
+	h := header{sh, make([]uint32, numentries)}
 	for i := 0; i < numentries; i++ {
 		binary.Read(r, binary.LittleEndian, &h.Offsets[i])
 	}
 
-	result = make([]LbxImage, sh.NumFrames, sh.NumFrames)
+	result = make([]LbxImage, sh.NumFrames)
 	var p color.Palette
 
 	if sh.Flags&InternalPalette != 0 {
@@ -54,7 +54,7 @@ func Decode(r io.ReadSeeker) (result []LbxImage, err error) {
 		r.Seek(int64(h.Offsets[i]), 0)
 
 		size := int(h.Width) * int(h.Height)
-		img := LbxImage{Stride: 1, Palette: p, Rect: image.Rect(0, 0, int(h.Width), int(h.Height)), Pix: make([]byte, size, size), Visible: make([]bool, size, size), FillBackground: sh.Flags&FillBackground != 0}
+		img := LbxImage{Stride: 1, Palette: p, Rect: image.Rect(0, 0, int(h.Width), int(h.Height)), Pix: make([]byte, size), Visible: make([]bool, size), FillBackground: sh.Flags&FillBackground != 0}
 		var numPix, yIndent, t uint16
 		var xPos, yPos int
 		var b byte
@@ -130,7 +130,7 @@ func decodePalette(r io.Reader) color.Palette {
 
 // ConvertPalette converts an 6-bit lbx palette into a color.Palette
 func ConvertPalette(r io.Reader, start int, amount int) (p color.Palette) {
-	p = make(color.Palette, 256, 256)
+	p = make(color.Palette, 256)
 
 	pc := paletteColor{}
 	for i := 0; i < amount; i++ {
@@ -148,7 +148,7 @@ func ConvertPalette(r io.Reader, start int, amount int) (p color.Palette) {
 
 // MergePalettes mixes the override colors into the base palette. The base palette must be 256 colors long.
 func MergePalettes(base color.Palette, override color.Palette) (mixed color.Palette) {
-	mixed = make(color.Palette, 256, 256)
+	mixed = make(color.Palette, 256)
 	for k, v := range override {
 		if v != nil {
 			mixed[k] = v
