@@ -153,7 +153,7 @@ func compressPNG(frames []*li.LbxImage, key string, r *res.Resource, wg *sync.Wa
 	var b bytes.Buffer
 
 	if err := png.Encode(&b, img); err == nil {
-		r.Put(fmt.Sprintf("%s_frames%d.png", key, len(frames)), b.Bytes())
+		r.Put(fmt.Sprintf("%s_f%d.png", key, len(frames)), b.Bytes())
 	} else {
 		log.Println(err)
 	}
