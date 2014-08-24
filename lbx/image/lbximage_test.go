@@ -8,8 +8,8 @@ import (
 
 var (
 	testimage = LbxImage{
-		Pix:     []uint8{0, 11, 11, 12, 0, 200, 0, 0},
-		Visible: []bool{1: true, 2: true, 3: true, 5: true, 7: false},
+		Pix:     []uint8{210, 11, 11, 12, 0, 200, 0, 250},
+		Visible: []bool{0: true, 1: true, 2: true, 3: true, 5: true, 7: false},
 		Stride:  1,
 		Rect:    image.Rect(0, 0, 2, 4),
 		Palette: color.Palette{
@@ -17,10 +17,15 @@ var (
 			12:  color.NRGBA{2, 1, 2, 0},
 			200: nil,
 		},
+		FillBackground: false,
 	}
 )
 
 func Test_LbxImage_At(t *testing.T) {
+	if c := []color.Color{testimage.At(0, 0), color.NRGBA{0, 0, 0, 255}}; c[0] != c[1] {
+		t.Error("excepted ", c[1], ", returned ", c[0])
+	}
+
 	if c := []color.Color{testimage.At(1, 0), testimage.Palette[11]}; c[0] != c[1] {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
@@ -29,11 +34,20 @@ func Test_LbxImage_At(t *testing.T) {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 
-	if c := []color.Color{testimage.At(1, 2), color.NRGBA{0, 0, 0, 0}}; c[0] != c[1] {
+	if c := []color.Color{testimage.At(1, 2), color.NRGBA{0, 0, 0, 255}}; c[0] != c[1] {
+		t.Error("excepted ", c[1], ", returned ", c[0])
+	}
+
+	if c := []color.Color{testimage.At(0, 3), color.NRGBA{0, 0, 0, 0}}; c[0] != c[1] {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 
 	if c := []color.Color{testimage.At(1, 3), color.NRGBA{0, 0, 0, 0}}; c[0] != c[1] {
+		t.Error("excepted ", c[1], ", returned ", c[0])
+	}
+
+	testimage.FillBackground = true
+	if c := []color.Color{testimage.At(1, 3), color.NRGBA{0, 0, 0, 255}}; c[0] != c[1] {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 }

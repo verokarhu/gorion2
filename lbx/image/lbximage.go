@@ -6,22 +6,33 @@ import (
 )
 
 type LbxImage struct {
-	Pix     []uint8
-	Visible []bool
-	Stride  int
-	Rect    image.Rectangle
-	Palette color.Palette
+	Pix            []uint8
+	Visible        []bool
+	Stride         int
+	Rect           image.Rectangle
+	Palette        color.Palette
+	FillBackground bool
 }
 
 var transparent = color.NRGBA{0, 0, 0, 0}
+var black = color.NRGBA{0, 0, 0, 255}
 
 func (i *LbxImage) At(x int, y int) color.Color {
 	index := i.Rect.Dx()*y + x
 
 	if i.Visible[index] {
-		if c := i.Palette[i.Pix[index]]; c != nil {
-			return c
+		colno := int(i.Pix[index])
+		if colno <= len(i.Palette) {
+			if c := i.Palette[colno]; c != nil {
+				return c
+			}
 		}
+
+		return black
+	}
+
+	if i.FillBackground {
+		return black
 	}
 
 	return transparent

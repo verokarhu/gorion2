@@ -54,7 +54,7 @@ func Decode(r io.ReadSeeker) (result []LbxImage, err error) {
 		r.Seek(int64(h.Offsets[i]), 0)
 
 		size := int(h.Width) * int(h.Height)
-		img := LbxImage{Stride: 1, Palette: p, Rect: image.Rect(0, 0, int(h.Width), int(h.Height)), Pix: make([]byte, size, size), Visible: make([]bool, size, size)}
+		img := LbxImage{Stride: 1, Palette: p, Rect: image.Rect(0, 0, int(h.Width), int(h.Height)), Pix: make([]byte, size, size), Visible: make([]bool, size, size), FillBackground: sh.Flags&FillBackground != 0}
 		var numPix, yIndent, t uint16
 		var xPos, yPos int
 		var b byte
