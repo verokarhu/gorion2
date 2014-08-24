@@ -33,7 +33,7 @@ const (
 )
 
 // Decode converts an lbx image into a paletted image using the internal palette (if it exists)
-func Decode(r io.ReadSeeker) (result []LbxImage, err error) {
+func Decode(r io.ReadSeeker) (result []*LbxImage, err error) {
 	sh := subHeader{}
 	binary.Read(r, binary.LittleEndian, &sh)
 
@@ -43,7 +43,7 @@ func Decode(r io.ReadSeeker) (result []LbxImage, err error) {
 		binary.Read(r, binary.LittleEndian, &h.Offsets[i])
 	}
 
-	result = make([]LbxImage, sh.NumFrames)
+	result = make([]*LbxImage, sh.NumFrames)
 	var p color.Palette
 
 	if sh.Flags&InternalPalette != 0 {
@@ -53,8 +53,10 @@ func Decode(r io.ReadSeeker) (result []LbxImage, err error) {
 	for i := 0; i < int(h.NumFrames); i++ {
 		r.Seek(int64(h.Offsets[i]), 0)
 
-		size := int(h.Width) * int(h.Height)
-		img := LbxImage{Stride: 1, Palette: p, Rect: image.Rect(0, 0, int(h.Width), int(h.Height)), Pix: make([]byte, size), Visible: make([]bool, size), FillBackground: sh.Flags&FillBackground != 0}
+		img := NewLbxImage(image.Rect(0, 0, int(h.Width), int(h.Height)))
+		img.FillBackground = sh.Flags&FillBackground != 0
+		img.Palette = MergePalettes(img.Palette, p)
+
 		var numPix, yIndent, t uint16
 		var xPos, yPos int
 		var b byte
@@ -76,7 +78,7 @@ func Decode(r io.ReadSeeker) (result []LbxImage, err error) {
 					xPos += int(t)
 
 					for j := 0; j < int(numPix); j++ {
-						index := yPos*int(h.Width) + xPos + j
+						index := yPos*img.Stride + xPos + j
 						binary.Read(r, binary.LittleEndian, &img.Pix[index])
 						img.Visible[index] = true
 					}

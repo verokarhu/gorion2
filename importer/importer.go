@@ -3,7 +3,10 @@ package importer
 import (
 	"bytes"
 	"fmt"
+	"image"
 	"image/color"
+	"image/draw"
+	"image/gif"
 	"image/png"
 	"io/ioutil"
 	"log"
@@ -11,11 +14,11 @@ import (
 	"sync"
 
 	"github.com/verokarhu/gorion2/lbx"
-	"github.com/verokarhu/gorion2/lbx/image"
+	li "github.com/verokarhu/gorion2/lbx/image"
 	res "github.com/verokarhu/gorion2/resource"
 )
 
-func Import(dirname string, r *res.Resource) error {
+func Import(dirname string, r *res.Resource, dumpgif bool) error {
 	if err := importVideo(dirname, r); err != nil {
 		return err
 	}
@@ -24,7 +27,7 @@ func Import(dirname string, r *res.Resource) error {
 		return err
 	}
 
-	if err := importImages(dirname, r); err != nil {
+	if err := importImages(dirname, r, dumpgif); err != nil {
 		return err
 	}
 
@@ -40,21 +43,27 @@ func loadExternalPalettes(dirname string) (pals map[string]color.Palette, err er
 			return nil, err
 		}
 
-		pals[fmt.Sprintf("%s%d", file.Filename, file.Index)] = image.ConvertPalette(bytes.NewReader(data[file.Index]), 0, 256)
+		pals[fmt.Sprintf("%s%d", file.Filename, file.Index)] = li.ConvertPalette(bytes.NewReader(data[file.Index]), 0, 256)
 	}
 
-	p := make(color.Palette, 256, 256)
-
+	p := make(color.Palette, 256)
 	for i := 0; i < len(p); i++ {
-		p[i] = color.NRGBA{150, 0, 0, 128}
+		p[i] = color.NRGBA{0, 0, 0, 255}
 	}
 
-	pals["none"] = p
+	pals["black"] = p
+
+	p = make(color.Palette, 256)
+	for i := 0; i < len(p); i++ {
+		p[i] = color.NRGBA{0, 0, 0, 0}
+	}
+
+	pals["transparent"] = p
 
 	return
 }
 
-func importImages(dirname string, r *res.Resource) error {
+func importImages(dirname string, r *res.Resource, dumpgif bool) error {
 	pals, err := loadExternalPalettes(dirname)
 	if err != nil {
 		return err
@@ -69,33 +78,58 @@ func importImages(dirname string, r *res.Resource) error {
 		}
 
 		for k, v := range data {
-			data, err := image.Decode(bytes.NewReader(v))
+			data, err := li.Decode(bytes.NewReader(v))
 
 			if err != nil {
 				fmt.Println("skipping", file.Filename, k, ":", err)
 			}
 
+			var frames []*li.LbxImage
+
+			if file.Palette != "all" {
+				frames = make([]*li.LbxImage, len(data))
+			} else {
+				frames = make([]*li.LbxImage, len(data)*len(pals))
+			}
+
+			name := fmt.Sprintf("%s%d", file.Filename, k)
 			for frame, v := range data {
 				if file.Palette == "all" {
-					for palname, pal := range pals {
+					i := 0
+					for _, pal := range pals {
 						imgcopy := v
-						imgcopy.Palette = image.MergePalettes(pal, imgcopy.Palette)
+						imgcopy.Palette = li.MergePalettes(pal, imgcopy.Palette)
 
-						wg.Add(1)
-						go compressPNG(imgcopy, fmt.Sprintf("%s%d-pal-%s.png", file.Filename, k, palname), r, &wg)
+						if imgcopy.FillBackground {
+							imgcopy.Palette = li.MergePalettes(pals["black"], imgcopy.Palette)
+						} else {
+							imgcopy.Palette = li.MergePalettes(pals["transparent"], imgcopy.Palette)
+						}
+
+						frames[i*len(data)+frame] = imgcopy
+						i++
 					}
-					break
 				} else {
 					imgcopy := v
-					imgcopy.Palette = image.MergePalettes(pals[file.Palette], imgcopy.Palette)
-
-					wg.Add(1)
-					if len(data) != 1 {
-						go compressPNG(imgcopy, fmt.Sprintf("%s%d-%d.png", file.Filename, k, frame+1), r, &wg)
-					} else {
-						go compressPNG(imgcopy, fmt.Sprintf("%s%d.png", file.Filename, k), r, &wg)
+					if file.Palette != "none" {
+						imgcopy.Palette = li.MergePalettes(pals[file.Palette], imgcopy.Palette)
 					}
+
+					if imgcopy.FillBackground {
+						imgcopy.Palette = li.MergePalettes(pals["black"], imgcopy.Palette)
+					} else {
+						imgcopy.Palette = li.MergePalettes(pals["transparent"], imgcopy.Palette)
+					}
+
+					frames[frame] = imgcopy
 				}
+			}
+
+			wg.Add(1)
+			if dumpgif {
+				go compressGIF(frames, name, r, &wg)
+			} else {
+				go compressPNG(frames, name, r, &wg)
 			}
 		}
 	}
@@ -104,11 +138,41 @@ func importImages(dirname string, r *res.Resource) error {
 	return nil
 }
 
-func compressPNG(img image.LbxImage, key string, r *res.Resource, wg *sync.WaitGroup) {
+func compressPNG(frames []*li.LbxImage, key string, r *res.Resource, wg *sync.WaitGroup) {
+	w, h := frames[0].Rect.Dx(), frames[0].Rect.Dy()
+	rect := image.Rect(0, 0, w*len(frames), h)
+	img := image.NewNRGBA(rect)
+
+	for k, v := range frames {
+		target := image.Rect(k*w, 0, k*w+w, h)
+		draw.Draw(img, target, v, v.Bounds().Min, draw.Src)
+	}
+
 	var b bytes.Buffer
 
-	if err := png.Encode(&b, &img); err == nil {
-		r.Put(key, b.Bytes())
+	if err := png.Encode(&b, img); err == nil {
+		r.Put(fmt.Sprintf("%s_frames%d.png", key, len(frames)), b.Bytes())
+	} else {
+		log.Println(err)
+	}
+
+	wg.Done()
+}
+
+func compressGIF(frames []*li.LbxImage, key string, r *res.Resource, wg *sync.WaitGroup) {
+	g := gif.GIF{make([]*image.Paletted, len(frames)), make([]int, len(frames)), 0}
+
+	for k, v := range frames {
+		img := image.NewPaletted(v.Rect, v.Palette)
+		draw.Draw(img, img.Bounds(), v, v.Bounds().Min, draw.Src)
+		g.Image[k] = img
+		g.Delay[k] = 10
+	}
+
+	var b bytes.Buffer
+
+	if err := gif.EncodeAll(&b, &g); err == nil {
+		r.Put(key+".gif", b.Bytes())
 	} else {
 		log.Println(err)
 	}

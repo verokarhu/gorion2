@@ -43,12 +43,12 @@ func Test_Decode(t *testing.T) {
 	expected := [2]LbxImage{
 		LbxImage{
 			Pix:    []uint8{0, 11, 11, 10, 0, 0, 0, 0, 200, 200, 200, 200},
-			Stride: 1,
+			Stride: 4,
 			Rect:   image.Rect(0, 0, 4, 3),
 		},
 		LbxImage{
 			Pix:    []uint8{200, 200, 200, 200, 10, 10, 11, 11, 0, 0, 0, 0},
-			Stride: 1,
+			Stride: 4,
 			Rect:   image.Rect(0, 0, 4, 3),
 		},
 	}
