@@ -22,6 +22,16 @@ type header struct {
 	Offsets []uint32
 }
 
+// image header flags
+const (
+	NoCompression = 256 << iota
+	Unk
+	FillBackground
+	FunctionalColor
+	InternalPalette
+	Junction
+)
+
 // Decode converts an lbx image into a paletted image using the internal palette (if it exists)
 func Decode(r io.ReadSeeker) (result []LbxImage, err error) {
 	sh := subHeader{}
@@ -36,7 +46,7 @@ func Decode(r io.ReadSeeker) (result []LbxImage, err error) {
 	result = make([]LbxImage, sh.NumFrames, sh.NumFrames)
 	var p color.Palette
 
-	if isInternalPalette(sh.Flags) {
+	if sh.Flags&InternalPalette != 0 {
 		p = decodePalette(r)
 	}
 
@@ -134,10 +144,6 @@ func ConvertPalette(r io.Reader, start int, amount int) (p color.Palette) {
 	}
 
 	return
-}
-
-func isInternalPalette(f uint16) bool {
-	return f >= 4096
 }
 
 // MergePalettes mixes the override colors into the base palette. The base palette must be 256 colors long.
