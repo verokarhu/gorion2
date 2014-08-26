@@ -5,10 +5,10 @@ import (
 	"image/color"
 )
 
-type LbxAnimation []LbxImage
+type Animation []Image
 type Palette [256]color.Color
 
-type LbxImage struct {
+type Image struct {
 	Pix            []uint8
 	Visible        []bool
 	Stride         int
@@ -21,7 +21,7 @@ var color_missing = color.NRGBA{1, 2, 3, 4}
 var color_transparent = color.NRGBA{0, 0, 0, 0}
 var color_black = color.NRGBA{0, 0, 0, 255}
 
-func (i *LbxImage) At(x, y int) color.Color {
+func (i *Image) At(x, y int) color.Color {
 	index := i.Rect.Dx()*y + x
 
 	if i.Visible[index] {
@@ -42,11 +42,11 @@ func (i *LbxImage) At(x, y int) color.Color {
 	return color_transparent
 }
 
-func (i *LbxImage) Bounds() image.Rectangle { return i.Rect }
+func (i *Image) Bounds() image.Rectangle { return i.Rect }
 
-func (i *LbxImage) ColorModel() color.Model { return color.NRGBAModel }
+func (i *Image) ColorModel() color.Model { return color.NRGBAModel }
 
-func NewLbxImage(r image.Rectangle) *LbxImage {
+func NewImage(r image.Rectangle) *Image {
 	w, h := r.Dx(), r.Dy()
 	pix := make([]uint8, w*h)
 	vis := make([]bool, w*h)
@@ -56,11 +56,11 @@ func NewLbxImage(r image.Rectangle) *LbxImage {
 		pal[i] = color_missing
 	}
 
-	return &LbxImage{pix, vis, w, r, pal, false}
+	return &Image{pix, vis, w, r, pal, false}
 }
 
-// Mix grabs colors missing from LbxImage's palette from override
-func (i *LbxImage) Mix(override Palette) {
+// Mix grabs colors missing from Image's palette from override
+func (i *Image) Mix(override Palette) {
 	for k, v := range override {
 		if i.Palette[k] == color_missing && v != nil {
 			i.Palette[k] = v
@@ -68,21 +68,20 @@ func (i *LbxImage) Mix(override Palette) {
 	}
 }
 
-func (anim LbxAnimation) Mix(override Palette) {
+func (anim Animation) Mix(override Palette) {
 	for k, _ := range anim {
 		anim[k].Mix(override)
 	}
 }
 
-func (anim LbxAnimation) SetFillBackground(flag bool) {
-	p := anim
+func (anim Animation) SetFillBackground(flag bool) {
 	for k, _ := range anim {
-		p[k].FillBackground = flag
+		anim[k].FillBackground = flag
 	}
 }
 
-func (anim LbxAnimation) Copy() (cop LbxAnimation) {
-	cop = make(LbxAnimation, len(anim))
+func (anim Animation) Copy() (cop Animation) {
+	cop = make(Animation, len(anim))
 	for k, v := range anim {
 		cop[k] = v
 	}

@@ -108,7 +108,7 @@ func importImages(dirname string, dumpdir string) error {
 	return nil
 }
 
-func compress(frames li.LbxAnimation, filename string, wg *sync.WaitGroup) {
+func compress(frames li.Animation, filename string, wg *sync.WaitGroup) {
 	wg.Add(1)
 	go func() {
 		compressPNG(frames, filename)
@@ -116,7 +116,7 @@ func compress(frames li.LbxAnimation, filename string, wg *sync.WaitGroup) {
 	}()
 }
 
-func compressPNG(frames li.LbxAnimation, filename string) {
+func compressPNG(frames li.Animation, filename string) {
 	filename = fmt.Sprintf("%s_f%d%s", filename, len(frames), ".png")
 	w, h := frames[0].Rect.Dx(), frames[0].Rect.Dy()
 

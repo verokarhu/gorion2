@@ -33,8 +33,8 @@ const (
 	Junction
 )
 
-// Decode converts an lbx image into a lbxanimation using the internal palette (if it exists)
-func Decode(r io.ReadSeeker) (anim LbxAnimation, err error) {
+// Decode converts an lbx image into a Animation using the internal palette (if it exists)
+func Decode(r io.ReadSeeker) (anim Animation, err error) {
 	sh := subHeader{}
 	binary.Read(r, binary.LittleEndian, &sh)
 
@@ -44,7 +44,7 @@ func Decode(r io.ReadSeeker) (anim LbxAnimation, err error) {
 		binary.Read(r, binary.LittleEndian, &h.Offsets[i])
 	}
 
-	anim = make([]LbxImage, sh.NumFrames)
+	anim = make([]Image, sh.NumFrames)
 	var p [256]color.Color
 
 	if sh.Flags&InternalPalette != 0 {
@@ -69,7 +69,7 @@ func Decode(r io.ReadSeeker) (anim LbxAnimation, err error) {
 	for i := 0; i < int(h.NumFrames); i++ {
 		r.Seek(int64(h.Offsets[i]), 0)
 
-		img := *NewLbxImage(image.Rect(0, 0, int(h.Width), int(h.Height)))
+		img := *NewImage(image.Rect(0, 0, int(h.Width), int(h.Height)))
 		img.FillBackground = sh.Flags&FillBackground != 0
 		img.Mix(p)
 
