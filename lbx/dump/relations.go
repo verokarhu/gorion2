@@ -1,4 +1,4 @@
-package importer
+package lbx
 
 type imagePair struct {
 	Filename string
@@ -50,5 +50,12 @@ var palette_files = []palettePair{
 }
 
 var image_files = []imagePair{
-	{"mainmenu", "none"},
+	{"mainmenu", "fonts6"},
+	//	{"planets", "none"},
+	//	{"logo", "none"},
+	//	{"bldg0", "all"},
+	//	{"app_pics", "none"},
+	//	{"newgame", "none"},
+	//	{"racesel", "none"},
+	//	{"tanm_001", "all"},
 }

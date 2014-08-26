@@ -112,23 +112,3 @@ func Test_ConvertPalette(t *testing.T) {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 }
-
-func Test_MergePalettes(t *testing.T) {
-	p := MergePalettes(basepalette, overridepalette)
-
-	if c := []int{len(p), 256}; c[0] != c[1] {
-		t.Fatal("excepted ", c[1], ", returned ", c[0])
-	}
-
-	if c := []color.Color{p[10], expectedpalette[10]}; c[0] != c[1] {
-		t.Error("excepted ", c[1], ", returned ", c[0])
-	}
-
-	if c := []color.Color{p[11], expectedpalette[11]}; c[0] != c[1] {
-		t.Error("excepted ", c[1], ", returned ", c[0])
-	}
-
-	if c := []color.Color{p[12], expectedpalette[12]}; c[0] != c[1] {
-		t.Error("excepted ", c[1], ", returned ", c[0])
-	}
-}
