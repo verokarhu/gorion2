@@ -2,6 +2,7 @@ package dumper
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"image"
 	"image/draw"
@@ -187,6 +188,10 @@ func importVideo(dirname string, targetdir string, filename string) error {
 	data, err := ioutil.ReadAll(f)
 	if err != nil {
 		return err
+	}
+
+	if string(data[:3]) != "SMK" {
+		return errors.New("not a smacker video file")
 	}
 
 	if err := ioutil.WriteFile(fmt.Sprintf("%s/%s.smk", targetdir, filename), data, 0644); err != nil {
