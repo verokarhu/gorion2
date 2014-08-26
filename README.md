@@ -16,7 +16,7 @@ lbxdumper
   -a=false: assume audio content
   -cpuprofile="": write cpu profile to file
   -dir="dumpdir": directory where the dumped files go
-  -disc="disc": path to game disc
+  -game="disc": path to directory containing moo2 install or the contents of the game disc
   -i=false: assume image content
   -lbx="": name of lbx file
   -pal="list": name of palette to use, list lists the alternatives

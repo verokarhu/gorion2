@@ -11,7 +11,7 @@ import (
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 var dumpdir = flag.String("dir", "dumpdir", "directory where the dumped files go")
-var gamedisc = flag.String("disc", "disc", "path to game disc")
+var gamedir = flag.String("game", "disc", "path to directory containing moo2 install or the contents of the game disc")
 var filename = flag.String("lbx", "", "name of lbx file")
 var palette = flag.String("pal", "list", "name of palette to use, list lists the alternatives")
 var audio = flag.Bool("a", false, "assume audio content")
@@ -35,6 +35,10 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
+	if *palette == "list" {
+		//TODO: list palettes
+	}
+
 	if *filename != "" {
 		if err := os.Mkdir(*dumpdir, os.ModeDir); !os.IsExist(err) && err != nil {
 			log.Println(err)
@@ -42,13 +46,13 @@ func main() {
 		}
 
 		if *video || (!*audio && !*video && !*image) {
-			if err := dumper.DumpVideo(*gamedisc, *dumpdir, *filename); err != nil {
+			if err := dumper.DumpVideo(*gamedir, *dumpdir, *filename); err != nil {
 				log.Println(err)
 			}
 		}
 
 		if *audio || (!*audio && !*video && !*image) {
-			if err := dumper.DumpAudio(*gamedisc, *dumpdir, *filename); err != nil {
+			if err := dumper.DumpAudio(*gamedir, *dumpdir, *filename); err != nil {
 				log.Println(err)
 			}
 		}
@@ -59,7 +63,7 @@ func main() {
 				i.Palette = "all"
 			}
 
-			if err := dumper.DumpImage(*gamedisc, *dumpdir, i); err != nil {
+			if err := dumper.DumpImage(*gamedir, *dumpdir, i); err != nil {
 				log.Println(err)
 			}
 		}
