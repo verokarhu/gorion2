@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/verokarhu/gorion2/lbx/dump"
 	"log"
 	"os"
@@ -13,7 +14,7 @@ var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 var dumpdir = flag.String("dir", "dumpdir", "directory where the dumped files go")
 var gamedir = flag.String("game", "disc", "path to directory containing moo2 install or the contents of the game disc")
 var filename = flag.String("lbx", "", "name of lbx file")
-var palette = flag.String("pal", "list", "name of palette to use, list lists the alternatives")
+var palette = flag.String("pal", "all", "name of palette to use, list gives the alternatives")
 var audio = flag.Bool("a", false, "assume audio content")
 var video = flag.Bool("v", false, "assume video content")
 var image = flag.Bool("i", false, "assume image content")
@@ -36,7 +37,11 @@ func main() {
 	}
 
 	if *palette == "list" {
-		//TODO: list palettes
+		fmt.Println("available palettes:")
+		for _, v := range dumper.PaletteFiles {
+			fmt.Println(fmt.Sprintf("%s%d", v.Filename, v.Index))
+		}
+		os.Exit(0)
 	}
 
 	if *filename != "" {

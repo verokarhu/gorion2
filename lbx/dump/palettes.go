@@ -12,7 +12,7 @@ type palettePair struct {
 	Index    int
 }
 
-var palette_files = []palettePair{
+var PaletteFiles = []palettePair{
 	{"fonts", 1},
 	{"fonts", 2},
 	{"fonts", 3},
@@ -35,7 +35,7 @@ var palette_files = []palettePair{
 func loadExternalPalettes(dirname string) (pals map[string]li.Palette, err error) {
 	pals = make(map[string]li.Palette)
 
-	for _, file := range palette_files {
+	for _, file := range PaletteFiles {
 		data, err := decodeFile(dirname + "/" + file.Filename + ".lbx")
 		if err != nil {
 			return nil, err
