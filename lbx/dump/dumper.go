@@ -1,4 +1,4 @@
-package lbx
+package dumper
 
 import (
 	"bytes"
@@ -17,38 +17,42 @@ import (
 
 const sheetwidth = 10
 
-func Dump(dirname string, dumpdir string) error {
-	if err := importVideo(dirname, dumpdir); err != nil {
-		return err
-	}
+type ImagePair struct {
+	Filename string
+	Palette  string
+}
 
-	if err := importAudio(dirname, dumpdir); err != nil {
-		return err
-	}
-
-	if err := importImages(dirname, dumpdir); err != nil {
-		return err
+func DumpImage(dirname string, targetdir string, files ...ImagePair) error {
+	for _, file := range files {
+		if err := importImage(dirname, targetdir, file); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-func loadExternalPalettes(dirname string) (pals map[string]li.Palette, err error) {
-	pals = make(map[string]li.Palette)
-
-	for _, file := range palette_files {
-		data, err := decodeFile(dirname + "/" + file.Filename + ".lbx")
-		if err != nil {
-			return nil, err
+func DumpAudio(dirname string, targetdir string, filenames ...string) error {
+	for _, filename := range filenames {
+		if err := importAudio(dirname, targetdir, filename); err != nil {
+			return err
 		}
-
-		pals[fmt.Sprintf("%s%d", file.Filename, file.Index)] = li.ConvertPalette(bytes.NewReader(data[file.Index]), 0, 256)
 	}
 
-	return
+	return nil
 }
 
-func importImages(dirname string, dumpdir string) error {
+func DumpVideo(dirname string, targetdir string, filenames ...string) error {
+	for _, filename := range filenames {
+		if err := importVideo(dirname, targetdir, filename); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func importImage(dirname string, dumpdir string, file ImagePair) error {
 	pals, err := loadExternalPalettes(dirname)
 	if err != nil {
 		return err
@@ -56,51 +60,49 @@ func importImages(dirname string, dumpdir string) error {
 
 	var wg sync.WaitGroup
 
-	for _, file := range image_files {
-		data, err := decodeFile(dirname + "/" + file.Filename + ".lbx")
+	data, err := decodeFile(dirname + "/" + file.Filename + ".lbx")
+	if err != nil {
+		return err
+	}
+
+	for k, v := range data {
+		fmt.Printf("decoding %s-%d:  ", file.Filename, k)
+
+		data, err := li.Decode(bytes.NewReader(v))
 		if err != nil {
-			return err
+			fmt.Println("skipping", file.Filename, k, ":", err)
 		}
 
-		for k, v := range data {
-			fmt.Printf("decoding %s-%d:  ", file.Filename, k)
+		fmt.Println()
 
-			data, err := li.Decode(bytes.NewReader(v))
-			if err != nil {
-				fmt.Println("skipping", file.Filename, k, ":", err)
-			}
-
-			fmt.Println()
-
-			name := fmt.Sprintf("%s/%s_%d", dumpdir, file.Filename, k)
-			switch file.Palette {
-			case "all":
-				for palname, pal := range pals {
-					filename := fmt.Sprintf("%s-p_%s", name, palname)
-					framescopy := data.Copy()
-					framescopy.Mix(pal)
-					compress(framescopy, filename, &wg)
-				}
-
-				filename := fmt.Sprintf("%s-p_none", name)
-				compress(data.Copy(), filename, &wg)
-
+		name := fmt.Sprintf("%s/%s_%d", dumpdir, file.Filename, k)
+		switch file.Palette {
+		case "all":
+			for palname, pal := range pals {
+				filename := fmt.Sprintf("%s-p_%s", name, palname)
 				framescopy := data.Copy()
-				filename = fmt.Sprintf("%s-p_black", name)
-				framescopy.SetFillBackground(true)
+				framescopy.Mix(pal)
 				compress(framescopy, filename, &wg)
-
-			case "none":
-				compress(data, name, &wg)
-
-			case "black":
-				data.SetFillBackground(true)
-				compress(data, name, &wg)
-
-			default:
-				data.Mix(pals[file.Palette])
-				compress(data, name, &wg)
 			}
+
+			filename := fmt.Sprintf("%s-p_none", name)
+			compress(data.Copy(), filename, &wg)
+
+			framescopy := data.Copy()
+			filename = fmt.Sprintf("%s-p_black", name)
+			framescopy.SetFillBackground(true)
+			compress(framescopy, filename, &wg)
+
+		case "none":
+			compress(data, name, &wg)
+
+		case "black":
+			data.SetFillBackground(true)
+			compress(data, name, &wg)
+
+		default:
+			data.Mix(pals[file.Palette])
+			compress(data, name, &wg)
 		}
 	}
 
@@ -160,39 +162,35 @@ func compressPNG(frames li.Animation, filename string) {
 	}
 }
 
-func importAudio(dirname string, dumpdir string) error {
-	for _, filename := range audio_files {
-		data, err := decodeFile(dirname + "/" + filename + ".lbx")
-		if err != nil {
-			return err
-		}
+func importAudio(dirname string, targetdir string, filename string) error {
+	data, err := decodeFile(dirname + "/" + filename + ".lbx")
+	if err != nil {
+		return err
+	}
 
-		for k, v := range data {
-			if err := ioutil.WriteFile(fmt.Sprintf("%s/%s%d.wav", dumpdir, filename, k), v, 0644); err != nil {
-				return err
-			}
+	for k, v := range data {
+		if err := ioutil.WriteFile(fmt.Sprintf("%s/%s%d.wav", targetdir, filename, k), v, 0644); err != nil {
+			return err
 		}
 	}
 
 	return nil
 }
 
-func importVideo(dirname string, dumpdir string) error {
-	for _, filename := range video_files {
-		f, err := os.Open(dirname + "/" + filename + ".lbx")
-		if err != nil {
-			return err
-		}
-		defer f.Close()
+func importVideo(dirname string, targetdir string, filename string) error {
+	f, err := os.Open(dirname + "/" + filename + ".lbx")
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
-		data, err := ioutil.ReadAll(f)
-		if err != nil {
-			return err
-		}
+	data, err := ioutil.ReadAll(f)
+	if err != nil {
+		return err
+	}
 
-		if err := ioutil.WriteFile(fmt.Sprintf("%s/%s.smk", dumpdir, filename), data, 0644); err != nil {
-			return err
-		}
+	if err := ioutil.WriteFile(fmt.Sprintf("%s/%s.smk", targetdir, filename), data, 0644); err != nil {
+		return err
 	}
 
 	return nil
