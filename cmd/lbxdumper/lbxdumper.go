@@ -9,9 +9,8 @@ import (
 	"runtime/pprof"
 )
 
-const tempdirectory = "dump_of_gamefiles"
-
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+var dumpdir = flag.String("dir", "dumpdir", "directory where the dumped files go")
 var gamedisc = flag.String("disc", "disc", "path to game disc")
 var filename = flag.String("lbx", "", "name of lbx file")
 var palette = flag.String("pal", "list", "name of palette to use, list lists the alternatives")
@@ -36,20 +35,20 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	if err := os.Mkdir(tempdirectory, os.ModeDir); !os.IsExist(err) && err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-
 	if *filename != "" {
+		if err := os.Mkdir(*dumpdir, os.ModeDir); !os.IsExist(err) && err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+
 		if *video || (!*audio && !*video && !*image) {
-			if err := dumper.DumpVideo(*gamedisc, tempdirectory, *filename); err != nil {
+			if err := dumper.DumpVideo(*gamedisc, *dumpdir, *filename); err != nil {
 				log.Println(err)
 			}
 		}
 
 		if *audio || (!*audio && !*video && !*image) {
-			if err := dumper.DumpAudio(*gamedisc, tempdirectory, *filename); err != nil {
+			if err := dumper.DumpAudio(*gamedisc, *dumpdir, *filename); err != nil {
 				log.Println(err)
 			}
 		}
@@ -60,7 +59,7 @@ func main() {
 				i.Palette = "all"
 			}
 
-			if err := dumper.DumpImage(*gamedisc, tempdirectory, i); err != nil {
+			if err := dumper.DumpImage(*gamedisc, *dumpdir, i); err != nil {
 				log.Println(err)
 			}
 		}
