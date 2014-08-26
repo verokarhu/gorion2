@@ -19,6 +19,6 @@ lbxdumper
   -game="disc": path to directory containing moo2 install or the contents of the game disc
   -i=false: assume image content
   -lbx="": name of lbx file
-  -pal="list": name of palette to use, list lists the alternatives
+  -pal="all": name of palette to use, list lists the alternatives
   -v=false: assume video content
 ```
