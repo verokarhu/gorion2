@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/verokarhu/gorion2/lbx/dump"
+	"github.com/verokarhu/gorion2/lbx/dumper"
 	"log"
 	"os"
 	"runtime"
