@@ -22,3 +22,7 @@ lbxdumper
   -pal="all": name of palette to use, list lists the alternatives
   -v=false: assume video content
 ```
+
+## Credits
+
+Most of the LBX parsing information comes from [Wolverine](http://web.archive.org/web/20131025194034/http://www.karoltomala.com/blog/?category_name=master-of-orion-2) [mirror](http://masteroforion2.blogspot.fi/2008/04/moo2-graphics.html).
