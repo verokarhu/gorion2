@@ -1,32 +1,28 @@
 package resource
 
 import (
-	sf "github.com/verokarhu/gorion2/third_party/bitbucket.org/krepa098/gosfml2"
+	"github.com/verokarhu/gorion2/client/gui"
 )
 
 type SpriteMap struct {
-	cache map[int]*sf.Sprite
+	cache map[int]*gui.AnimatedSprite
+	Tex   *TexMap
 }
 
 func (s *SpriteMap) Flush() {
-	s.cache = make(map[int]*sf.Sprite)
+	s.cache = make(map[int]*gui.AnimatedSprite)
 }
 
-func (s *SpriteMap) Get(key int) *sf.Sprite {
+func (s *SpriteMap) Get(key int) *gui.AnimatedSprite {
 	return s.cache[key]
 }
 
-func (s *SpriteMap) Put(key int, tex *sf.Texture) error {
-	spr, err := sf.NewSprite(tex)
-	if err != nil {
-		return err
-	}
-
+func (s *SpriteMap) Put(key int, texname string) error {
 	if s.cache == nil {
 		s.Flush()
 	}
 
-	s.cache[key] = spr
+	s.cache[key] = gui.NewAnimatedSprite(parseNumframes(texname), s.Tex.Get(texname))
 
 	return nil
 }
