@@ -1,8 +1,9 @@
 package resource
 
-// list of files that get saved
+// list of files that get used
 var whitelist = []string{
-	"mainmenu1.png",
-	"mainmenu21.png",
+	"mainmenu_21_f1.png",
+	"tanm_001_0_f30.png",
 	"stream3.wav",
+	"streamhd17.wav",
 }

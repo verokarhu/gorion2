@@ -2,6 +2,7 @@ package resource
 
 import (
 	"encoding/gob"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"sync"
@@ -38,13 +39,8 @@ func (r *Resource) WriteFile(filename string) error {
 	}
 	defer f.Close()
 
-	m := make(map[string][]byte)
-	for _, v := range whitelist {
-		m[v] = r.Get(v)
-	}
-
 	enc := gob.NewEncoder(f)
-	if err := enc.Encode(m); err != nil {
+	if err := enc.Encode(r.cache); err != nil {
 		return err
 	}
 
@@ -66,16 +62,38 @@ func (r *Resource) Put(key string, value []byte) {
 	r.cache[key] = value
 }
 
-func (r *Resource) DumpAsFiles(dir string) error {
-	if err := os.Mkdir(dir, os.ModeDir); !os.IsExist(err) && err != nil {
-		return err
+func (r *Resource) Keys() (keys []string) {
+	for k, _ := range r.cache {
+		keys = append(keys, k)
 	}
 
-	for k, v := range r.cache {
-		if err := ioutil.WriteFile(dir+"/"+k, v, 0644); err != nil {
+	return
+}
+
+func (r *Resource) LoadDirectory(dir string) error {
+	for _, v := range whitelist {
+		b, err := loadFile(fmt.Sprintf("%s/%s", dir, v))
+		if err != nil {
 			return err
 		}
+
+		r.Put(v, b)
 	}
 
 	return nil
+}
+
+func loadFile(filename string) ([]byte, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
 }
