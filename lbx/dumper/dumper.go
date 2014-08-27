@@ -13,10 +13,9 @@ import (
 	"sync"
 
 	"github.com/verokarhu/gorion2/lbx"
+	"github.com/verokarhu/gorion2/lbx/dumper/defs"
 	li "github.com/verokarhu/gorion2/lbx/image"
 )
-
-const sheetwidth = 10
 
 type ImagePair struct {
 	Filename string
@@ -129,11 +128,11 @@ func compressPNG(frames li.Animation, filename string) {
 	}
 	defer f.Close()
 
-	rows := (len(frames) / sheetwidth)
-	cols := sheetwidth
-	r := len(frames) % sheetwidth
+	rows := (len(frames) / defs.Sheetwidth)
+	cols := defs.Sheetwidth
+	r := len(frames) % defs.Sheetwidth
 
-	if len(frames) < sheetwidth {
+	if len(frames) < defs.Sheetwidth {
 		cols = len(frames)
 	}
 
@@ -147,14 +146,14 @@ func compressPNG(frames li.Animation, filename string) {
 	for y := 0; y < rows; y++ {
 		for x := 0; x < cols; x++ {
 			target := image.Rect(x*w, y*h, x*w+w, y*h+h)
-			f := frames[sheetwidth*y+x]
+			f := frames[defs.Sheetwidth*y+x]
 			draw.Draw(img, target, &f, f.Bounds().Min, draw.Src)
 		}
 	}
 
 	for x := 0; x < r; x++ {
 		target := image.Rect(x*w, rows*h, x*w+w, rows*h+h)
-		f := frames[sheetwidth*rows+x]
+		f := frames[defs.Sheetwidth*rows+x]
 		draw.Draw(img, target, &f, f.Bounds().Min, draw.Src)
 	}
 
