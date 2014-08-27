@@ -170,8 +170,10 @@ func importAudio(dirname string, targetdir string, filename string) error {
 	}
 
 	for k, v := range data {
-		if err := ioutil.WriteFile(fmt.Sprintf("%s/%s%d.wav", targetdir, filename, k), v, 0644); err != nil {
-			return err
+		if string(v[:4]) == "RIFF" {
+			if err := ioutil.WriteFile(fmt.Sprintf("%s/%s%d.wav", targetdir, filename, k), v, 0644); err != nil {
+				return err
+			}
 		}
 	}
 
