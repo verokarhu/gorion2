@@ -118,9 +118,9 @@ func compress(frames li.Animation, filename string, wg *sync.WaitGroup) {
 	}()
 }
 
-func compressPNG(frames li.Animation, filename string) {
-	filename = fmt.Sprintf("%s_f%d%s", filename, len(frames), ".png")
-	w, h := frames[0].Rect.Dx(), frames[0].Rect.Dy()
+func compressPNG(anim li.Animation, filename string) {
+	filename = fmt.Sprintf("%s_f%d_fd%d%s", filename, len(anim.Frames), anim.FrameDelay, ".png")
+	w, h := anim.Frames[0].Rect.Dx(), anim.Frames[0].Rect.Dy()
 
 	f, err := os.Create(filename)
 	if err != nil {
@@ -128,12 +128,12 @@ func compressPNG(frames li.Animation, filename string) {
 	}
 	defer f.Close()
 
-	rows := (len(frames) / defs.Sheetwidth)
+	rows := (len(anim.Frames) / defs.Sheetwidth)
 	cols := defs.Sheetwidth
-	r := len(frames) % defs.Sheetwidth
+	r := len(anim.Frames) % defs.Sheetwidth
 
-	if len(frames) < defs.Sheetwidth {
-		cols = len(frames)
+	if len(anim.Frames) < defs.Sheetwidth {
+		cols = len(anim.Frames)
 	}
 
 	var img *image.NRGBA
@@ -146,14 +146,14 @@ func compressPNG(frames li.Animation, filename string) {
 	for y := 0; y < rows; y++ {
 		for x := 0; x < cols; x++ {
 			target := image.Rect(x*w, y*h, x*w+w, y*h+h)
-			f := frames[defs.Sheetwidth*y+x]
+			f := anim.Frames[defs.Sheetwidth*y+x]
 			draw.Draw(img, target, &f, f.Bounds().Min, draw.Src)
 		}
 	}
 
 	for x := 0; x < r; x++ {
 		target := image.Rect(x*w, rows*h, x*w+w, rows*h+h)
-		f := frames[defs.Sheetwidth*rows+x]
+		f := anim.Frames[defs.Sheetwidth*rows+x]
 		draw.Draw(img, target, &f, f.Bounds().Min, draw.Src)
 	}
 

@@ -5,7 +5,11 @@ import (
 	"image/color"
 )
 
-type Animation []Image
+type Animation struct {
+	Frames     []Image
+	FrameDelay int
+}
+
 type Palette [256]color.Color
 
 type Image struct {
@@ -69,21 +73,21 @@ func (i *Image) Mix(override Palette) {
 }
 
 func (anim Animation) Mix(override Palette) {
-	for k, _ := range anim {
-		anim[k].Mix(override)
+	for k, _ := range anim.Frames {
+		anim.Frames[k].Mix(override)
 	}
 }
 
 func (anim Animation) SetFillBackground(flag bool) {
-	for k, _ := range anim {
-		anim[k].FillBackground = flag
+	for k, _ := range anim.Frames {
+		anim.Frames[k].FillBackground = flag
 	}
 }
 
 func (anim Animation) Copy() (cop Animation) {
-	cop = make(Animation, len(anim))
-	for k, v := range anim {
-		cop[k] = v
+	cop = Animation{make([]Image, len(anim.Frames)), anim.FrameDelay}
+	for k, v := range anim.Frames {
+		cop.Frames[k] = v
 	}
 
 	return

@@ -44,7 +44,7 @@ func Decode(r io.ReadSeeker) (anim Animation, err error) {
 		binary.Read(r, binary.LittleEndian, &h.Offsets[i])
 	}
 
-	anim = make([]Image, sh.NumFrames)
+	anim = Animation{make([]Image, sh.NumFrames), int(sh.FrameDelay)}
 	var p [256]color.Color
 
 	if sh.Flags&InternalPalette != 0 {
@@ -118,10 +118,10 @@ func Decode(r io.ReadSeeker) (anim Animation, err error) {
 				}
 			}
 		} else {
-			return nil, errors.New("frame didn't start with 1")
+			return anim, errors.New("frame didn't start with 1")
 		}
 
-		anim[i] = img
+		anim.Frames[i] = img
 	}
 
 	return
