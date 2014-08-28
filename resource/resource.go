@@ -2,9 +2,9 @@ package resource
 
 import (
 	"encoding/gob"
-	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"sync"
 )
 
@@ -70,9 +70,9 @@ func (r *Resource) Keys() (keys []string) {
 	return
 }
 
-func (r *Resource) LoadDirectory(dir string) error {
-	for _, v := range whitelist {
-		b, err := loadFile(fmt.Sprintf("%s/%s", dir, v))
+func (r *Resource) LoadFiles(files []string, dir string) error {
+	for _, v := range files {
+		b, err := loadFile(path.Join(dir, v))
 		if err != nil {
 			return err
 		}
