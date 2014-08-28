@@ -119,7 +119,7 @@ func compress(frames li.Animation, filename string, wg *sync.WaitGroup) {
 }
 
 func compressPNG(anim li.Animation, filename string) {
-	filename = fmt.Sprintf("%s_f%d_fd%d%s", filename, len(anim.Frames), anim.FrameDelay, ".png")
+	filename = fmt.Sprintf("%s_f%d_d%d%s", filename, len(anim.Frames), anim.FrameDelay, ".png")
 	w, h := anim.Frames[0].Rect.Dx(), anim.Frames[0].Rect.Dy()
 
 	f, err := os.Create(filename)
