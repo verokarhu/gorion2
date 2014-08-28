@@ -2,6 +2,7 @@ package resource
 
 import (
 	"log"
+	"path"
 	"strconv"
 	"strings"
 
@@ -16,7 +17,7 @@ type TexMap struct {
 
 func (t *TexMap) Preload() {
 	for _, v := range t.R.Keys() {
-		if strings.Contains(v, ".png") {
+		if path.Ext(v) == "png" {
 			t.Get(v)
 		}
 	}
