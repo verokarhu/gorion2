@@ -50,15 +50,27 @@ func (t *TexMap) loadTexture(key string) error {
 	return nil
 }
 
-func parseNumframes(key string) int {
+func parseAnimationParams(key string) (numframes int, framedelay int) {
 	s := strings.TrimSuffix(key, ".png")
-	index := strings.LastIndex(s, "_f")
+	f_index := strings.LastIndex(s, "_f")
+	numframes = 1
 
-	if index != -1 {
-		if i, err := strconv.Atoi(s[index+2:]); err == nil {
-			return i
+	if f_index == -1 {
+		return
+	}
+
+	d_index := strings.LastIndex(s, "_d")
+
+	if d_index == -1 {
+		return
+	}
+
+	if i, err := strconv.Atoi(s[f_index+2 : d_index]); err == nil {
+		if j, err := strconv.Atoi(s[d_index+2:]); err == nil {
+			numframes = i
+			framedelay = j
 		}
 	}
 
-	return 1
+	return
 }

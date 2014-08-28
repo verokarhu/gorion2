@@ -22,7 +22,8 @@ func (s *SpriteMap) Put(key int, texname string) error {
 		s.Flush()
 	}
 
-	s.cache[key] = gui.NewAnimatedSprite(parseNumframes(texname), s.Tex.Get(texname))
+	nf, fd := parseAnimationParams(texname)
+	s.cache[key] = gui.NewAnimatedSprite(nf, fd, s.Tex.Get(texname))
 
 	return nil
 }

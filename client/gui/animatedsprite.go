@@ -9,9 +9,10 @@ import (
 type AnimatedSprite struct {
 	sprites      []*sf.Sprite
 	currentframe int
+	framedelay   int
 }
 
-func NewAnimatedSprite(numframes int, tex *sf.Texture) *AnimatedSprite {
+func NewAnimatedSprite(numframes int, framedelay int, tex *sf.Texture) *AnimatedSprite {
 	s := make([]*sf.Sprite, numframes)
 	cols := defs.Sheetwidth
 	rows := numframes / defs.Sheetwidth
@@ -50,7 +51,7 @@ func NewAnimatedSprite(numframes int, tex *sf.Texture) *AnimatedSprite {
 		s[x+rows*defs.Sheetwidth] = sprite
 	}
 
-	return &AnimatedSprite{s, -1}
+	return &AnimatedSprite{s, -1, framedelay}
 }
 
 func (s *AnimatedSprite) NextFrame() *sf.Sprite {
