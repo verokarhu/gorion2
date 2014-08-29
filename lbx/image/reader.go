@@ -26,7 +26,7 @@ type header struct {
 // image header flags
 const (
 	NoCompression = 256 << iota
-	Unk
+	_
 	FillBackground
 	FunctionalColor
 	InternalPalette
