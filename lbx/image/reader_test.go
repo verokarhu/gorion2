@@ -40,13 +40,13 @@ var (
 func Test_Decode(t *testing.T) {
 	f := bytes.NewReader(lbximg)
 
-	expected := [2]LbxImage{
-		LbxImage{
+	expected := [2]Image{
+		Image{
 			Pix:    []uint8{0, 11, 11, 10, 0, 0, 0, 0, 200, 200, 200, 200},
 			Stride: 4,
 			Rect:   image.Rect(0, 0, 4, 3),
 		},
-		LbxImage{
+		Image{
 			Pix:    []uint8{200, 200, 200, 200, 10, 10, 11, 11, 0, 0, 0, 0},
 			Stride: 4,
 			Rect:   image.Rect(0, 0, 4, 3),
@@ -58,39 +58,39 @@ func Test_Decode(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if c := []int{len(decoded), 2}; c[0] != c[1] {
+	if c := []int{len(decoded.Frames), 2}; c[0] != c[1] {
 		t.Fatal("excepted ", c[1], ", returned ", c[0])
 	}
 
-	if c := []int{len(decoded[0].Palette), 256}; c[0] != c[1] {
+	if c := []int{len(decoded.Frames[0].Palette), 256}; c[0] != c[1] {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 
-	if c := []int{len(decoded[1].Palette), 256}; c[0] != c[1] {
+	if c := []int{len(decoded.Frames[1].Palette), 256}; c[0] != c[1] {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 
-	if c := []int{decoded[0].Stride, expected[0].Stride}; c[0] != c[1] {
+	if c := []int{decoded.Frames[0].Stride, expected[0].Stride}; c[0] != c[1] {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 
-	if c := []int{decoded[1].Stride, expected[1].Stride}; c[0] != c[1] {
+	if c := []int{decoded.Frames[1].Stride, expected[1].Stride}; c[0] != c[1] {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 
-	if c := [][]uint8{decoded[0].Pix, expected[0].Pix}; bytes.Compare(c[0], c[1]) != 0 {
+	if c := [][]uint8{decoded.Frames[0].Pix, expected[0].Pix}; bytes.Compare(c[0], c[1]) != 0 {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 
-	if c := [][]uint8{decoded[1].Pix, expected[1].Pix}; bytes.Compare(c[0], c[1]) != 0 {
+	if c := [][]uint8{decoded.Frames[1].Pix, expected[1].Pix}; bytes.Compare(c[0], c[1]) != 0 {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 
-	if c := []image.Rectangle{decoded[0].Rect, expected[0].Rect}; !c[0].Size().Eq(c[1].Size()) {
+	if c := []image.Rectangle{decoded.Frames[0].Rect, expected[0].Rect}; !c[0].Size().Eq(c[1].Size()) {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 
-	if c := []image.Rectangle{decoded[1].Rect, expected[1].Rect}; !c[0].Size().Eq(c[1].Size()) {
+	if c := []image.Rectangle{decoded.Frames[1].Rect, expected[1].Rect}; !c[0].Size().Eq(c[1].Size()) {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 }

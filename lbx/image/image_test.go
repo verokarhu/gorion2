@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-var testimage = NewLbxImage(image.Rect(0, 0, 2, 4))
+var testimage = NewImage(image.Rect(0, 0, 2, 4))
 
-func Test_LbxImage_At(t *testing.T) {
+func Test_Image_At(t *testing.T) {
 	testimage.Pix = []uint8{210, 11, 11, 12, 150, 200, 0, 250}
 	testimage.Visible = []bool{0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 7: false}
 	testimage.Palette[11] = color.NRGBA{200, 196, 192, 255}
@@ -49,7 +49,7 @@ func Test_LbxImage_At(t *testing.T) {
 
 }
 
-func Test_LbxImage_Mix(t *testing.T) {
+func Test_Image_Mix(t *testing.T) {
 	pal := Palette{50: color.NRGBA{200, 200, 100, 100}, 150: color.NRGBA{10, 10, 20, 20}}
 	testimage.Mix(pal)
 
@@ -69,7 +69,7 @@ func Test_LbxImage_Mix(t *testing.T) {
 	}
 }
 
-func Benchmark_LbxImage_At(b *testing.B) {
+func Benchmark_Image_At(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		for x := 0; x < testimage.Rect.Dx(); x++ {
 			for y := 0; y < testimage.Rect.Dy(); y++ {
