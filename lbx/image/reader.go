@@ -124,6 +124,10 @@ func Decode(r io.ReadSeeker) (anim Animation, err error) {
 		anim.Frames[i] = img
 	}
 
+	if sh.Flags&FillBackground == 0 && len(anim.Frames) > 1 {
+		anim.BlendFrames()
+	}
+
 	return
 }
 

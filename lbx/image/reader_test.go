@@ -10,7 +10,7 @@ import (
 var (
 	lbximg = []byte{
 		4, 0, 3, 0, 0, 0, 2, 0,
-		10, 0, 0, 0x10, 36, 0, 0, 0,
+		10, 0, 0, 0x14, 36, 0, 0, 0,
 		68, 0, 0, 0, 88, 0, 0, 0,
 		10, 0, 2, 0, 0, 10, 11, 12,
 		1, 50, 49, 48, 1, 0, 0, 0,
@@ -42,14 +42,16 @@ func Test_Decode(t *testing.T) {
 
 	expected := [2]Image{
 		Image{
-			Pix:    []uint8{0, 11, 11, 10, 0, 0, 0, 0, 200, 200, 200, 200},
-			Stride: 4,
-			Rect:   image.Rect(0, 0, 4, 3),
+			Pix:            []uint8{0, 11, 11, 10, 0, 0, 0, 0, 200, 200, 200, 200},
+			Stride:         4,
+			Rect:           image.Rect(0, 0, 4, 3),
+			FillBackground: true,
 		},
 		Image{
-			Pix:    []uint8{200, 200, 200, 200, 10, 10, 11, 11, 0, 0, 0, 0},
-			Stride: 4,
-			Rect:   image.Rect(0, 0, 4, 3),
+			Pix:            []uint8{200, 200, 200, 200, 10, 10, 11, 11, 0, 0, 0, 0},
+			Stride:         4,
+			Rect:           image.Rect(0, 0, 4, 3),
+			FillBackground: true,
 		},
 	}
 
@@ -91,6 +93,10 @@ func Test_Decode(t *testing.T) {
 	}
 
 	if c := []image.Rectangle{decoded.Frames[1].Rect, expected[1].Rect}; !c[0].Size().Eq(c[1].Size()) {
+		t.Error("excepted ", c[1], ", returned ", c[0])
+	}
+
+	if c := []bool{decoded.Frames[1].FillBackground, expected[1].FillBackground}; c[0] != c[1] {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 }

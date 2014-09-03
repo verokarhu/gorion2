@@ -1,6 +1,7 @@
 package image
 
 import (
+	"bytes"
 	"image"
 	"image/color"
 	"testing"
@@ -65,6 +66,45 @@ func Test_Image_Mix(t *testing.T) {
 	testimage.Mix(pal)
 
 	if c := []color.Color{testimage.Palette[50], color.NRGBA{200, 200, 100, 100}}; c[0] != c[1] {
+		t.Error("excepted ", c[1], ", returned ", c[0])
+	}
+}
+
+func Test_Image_Blend(t *testing.T) {
+	base, override := NewImage(image.Rect(0, 0, 5, 1)), NewImage(image.Rect(0, 0, 5, 1))
+	base.Pix = []uint8{1, 1, 1, 1, 1}
+	override.Pix = []uint8{5, 5, 5, 5, 5}
+	override.Visible = []bool{2: true}
+	expected := []uint8{1, 1, 5, 1, 1}
+
+	result := Blend(*base, *override)
+
+	if c := [][]uint8{result.Pix, expected}; bytes.Compare(c[0], c[1]) != 0 {
+		t.Error("excepted ", c[1], ", returned ", c[0])
+	}
+}
+
+func Test_Animation_BlendFrames(t *testing.T) {
+	f0, f1, f2 := NewImage(image.Rect(0, 0, 5, 1)), NewImage(image.Rect(0, 0, 5, 1)), NewImage(image.Rect(0, 0, 5, 1))
+	f0.Pix = []uint8{1, 1, 1, 1, 1}
+	f1.Pix = []uint8{5, 5, 5, 5, 5}
+	f2.Pix = f1.Pix
+	f1.Visible = []bool{0: true}
+	f2.Visible = []bool{4: true}
+	anim := Animation{Frames: []Image{*f0, *f1, *f2}}
+	expected := [][]uint8{f0.Pix, []uint8{5, 1, 1, 1, 1}, []uint8{1, 1, 1, 1, 5}}
+
+	anim.BlendFrames()
+
+	if c := [][]uint8{anim.Frames[0].Pix, expected[0]}; bytes.Compare(c[0], c[1]) != 0 {
+		t.Error("excepted ", c[1], ", returned ", c[0])
+	}
+
+	if c := [][]uint8{anim.Frames[1].Pix, expected[1]}; bytes.Compare(c[0], c[1]) != 0 {
+		t.Error("excepted ", c[1], ", returned ", c[0])
+	}
+
+	if c := [][]uint8{anim.Frames[2].Pix, expected[2]}; bytes.Compare(c[0], c[1]) != 0 {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 }

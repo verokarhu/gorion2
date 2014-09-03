@@ -72,6 +72,30 @@ func (i *Image) Mix(override Palette) {
 	}
 }
 
+func (i *Image) Copy() (cop Image) {
+	cop = Image{make([]uint8, len(i.Pix)), make([]bool, len(i.Visible)), i.Stride, i.Rect, i.Palette, i.FillBackground}
+	for k, v := range i.Pix {
+		cop.Pix[k] = v
+	}
+
+	for k, v := range i.Visible {
+		cop.Visible[k] = v
+	}
+
+	return
+}
+
+func Blend(base Image, override Image) (result Image) {
+	result = base.Copy()
+	for k, v := range override.Pix {
+		if k < len(override.Visible) && override.Visible[k] {
+			result.Pix[k] = v
+		}
+	}
+
+	return
+}
+
 func (anim Animation) Mix(override Palette) {
 	for k, _ := range anim.Frames {
 		anim.Frames[k].Mix(override)
@@ -91,4 +115,10 @@ func (anim Animation) Copy() (cop Animation) {
 	}
 
 	return
+}
+
+func (anim *Animation) BlendFrames() {
+	for i := 1; i < len(anim.Frames); i++ {
+		anim.Frames[i] = Blend(anim.Frames[0], anim.Frames[i])
+	}
 }
