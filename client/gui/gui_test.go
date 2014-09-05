@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"image"
 	"testing"
 
 	sf "github.com/verokarhu/gorion2/third_party/bitbucket.org/krepa098/gosfml2"
@@ -19,33 +20,41 @@ func Test_CalcPosVec(t *testing.T) {
 }
 
 func Test_ButtonMap_Contains(t *testing.T) {
-	bm := ButtonMap{sf.Vector2f{0.2, 0.2}, sf.Vector2f{0.3, 0.3}}
+	bm := ButtonMap{image.Rect(2, 2, 8, 8), 0, false, nil}
 
-	if bm.Contains(sf.Vector2f{0.1, 0.25}) {
+	if bm.MouseOver(sf.Vector2i{1, 3}) {
 		t.Error("returned true")
 	}
 
-	if bm.Contains(sf.Vector2f{0.4, 0.25}) {
+	if bm.MouseOver(sf.Vector2i{9, 3}) {
 		t.Error("returned true")
 	}
 
-	if bm.Contains(sf.Vector2f{0.25, 0.1}) {
+	if bm.MouseOver(sf.Vector2i{3, 1}) {
 		t.Error("returned true")
 	}
 
-	if bm.Contains(sf.Vector2f{0.1, 0.4}) {
+	if bm.MouseOver(sf.Vector2i{1, 3}) {
 		t.Error("returned true")
 	}
 
-	if !bm.Contains(sf.Vector2f{0.2, 0.2}) {
+	if bm.Visible {
+		t.Error("returned true")
+	}
+
+	if !bm.MouseOver(sf.Vector2i{2, 2}) {
 		t.Error("returned false")
 	}
 
-	if !bm.Contains(sf.Vector2f{0.25, 0.25}) {
+	if !bm.MouseOver(sf.Vector2i{3, 3}) {
 		t.Error("returned false")
 	}
 
-	if !bm.Contains(sf.Vector2f{0.3, 0.3}) {
+	if !bm.MouseOver(sf.Vector2i{8, 8}) {
 		t.Error("returned false")
+	}
+
+	if !bm.Visible {
+		t.Error("returned true")
 	}
 }
