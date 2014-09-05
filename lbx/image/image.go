@@ -119,6 +119,6 @@ func (anim Animation) Copy() (cop Animation) {
 
 func (anim *Animation) BlendFrames() {
 	for i := 1; i < len(anim.Frames); i++ {
-		anim.Frames[i] = Blend(anim.Frames[0], anim.Frames[i])
+		anim.Frames[i] = Blend(anim.Frames[i-1], anim.Frames[i])
 	}
 }
