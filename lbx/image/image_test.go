@@ -92,7 +92,7 @@ func Test_Animation_BlendFrames(t *testing.T) {
 	f1.Visible = []bool{0: true}
 	f2.Visible = []bool{4: true}
 	anim := Animation{Frames: []Image{*f0, *f1, *f2}}
-	expected := [][]uint8{f0.Pix, []uint8{5, 1, 1, 1, 1}, []uint8{1, 1, 1, 1, 5}}
+	expected := [][]uint8{f0.Pix, []uint8{5, 1, 1, 1, 1}, []uint8{5, 1, 1, 1, 5}}
 
 	anim.BlendFrames()
 
