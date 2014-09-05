@@ -10,6 +10,7 @@ type AnimatedSprite struct {
 	sprites      []*sf.Sprite
 	currentframe int
 	framedelay   int
+	loop         bool
 }
 
 func NewAnimatedSprite(numframes int, framedelay int, tex *sf.Texture) *AnimatedSprite {
@@ -51,15 +52,21 @@ func NewAnimatedSprite(numframes int, framedelay int, tex *sf.Texture) *Animated
 		s[x+rows*defs.Sheetwidth] = sprite
 	}
 
-	return &AnimatedSprite{s, -1, framedelay}
+	return &AnimatedSprite{s, 0, framedelay, false}
 }
 
 func (s *AnimatedSprite) NextFrame() *sf.Sprite {
-	s.currentframe += 1
-
-	if s.currentframe >= len(s.sprites) {
-		s.currentframe = 0
+	if s.currentframe+1 == len(s.sprites) {
+		if s.loop {
+			s.currentframe = 0
+		}
+	} else {
+		s.currentframe += 1
 	}
 
 	return s.sprites[s.currentframe]
+}
+
+func (s *AnimatedSprite) SetLoop(l bool) {
+	s.loop = l
 }
