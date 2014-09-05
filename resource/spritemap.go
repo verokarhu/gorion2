@@ -17,7 +17,7 @@ func (s *SpriteMap) Get(key int) *gui.AnimatedSprite {
 	return s.cache[key]
 }
 
-func (s *SpriteMap) Put(key int, texname string) error {
+func (s *SpriteMap) Put(key int, texname string) *gui.AnimatedSprite {
 	if s.cache == nil {
 		s.Flush()
 	}
@@ -25,5 +25,5 @@ func (s *SpriteMap) Put(key int, texname string) error {
 	nf, fd := parseAnimationParams(texname)
 	s.cache[key] = gui.NewAnimatedSprite(nf, fd, s.Tex.Get(texname))
 
-	return nil
+	return s.cache[key]
 }
