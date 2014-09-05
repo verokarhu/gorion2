@@ -70,3 +70,7 @@ func (s *AnimatedSprite) NextFrame() *sf.Sprite {
 func (s *AnimatedSprite) SetLoop(l bool) {
 	s.loop = l
 }
+
+func (s *AnimatedSprite) Stopped() bool {
+	return s.currentframe+1 == len(s.sprites) && !s.loop
+}
