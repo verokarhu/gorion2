@@ -88,16 +88,7 @@ func importImage(dirname string, dumpdir string, file ImagePair) error {
 			filename := fmt.Sprintf("%s-p_none", name)
 			compress(data.Copy(), filename, &wg)
 
-			framescopy := data.Copy()
-			filename = fmt.Sprintf("%s-p_black", name)
-			framescopy.SetFillBackground(true)
-			compress(framescopy, filename, &wg)
-
 		case "none":
-			compress(data, name, &wg)
-
-		case "black":
-			data.SetFillBackground(true)
 			compress(data, name, &wg)
 
 		default:

@@ -42,12 +42,6 @@ func Test_Image_At(t *testing.T) {
 	if c := []color.Color{testimage.At(1, 3), color.NRGBA{0, 0, 0, 0}}; c[0] != c[1] {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
-
-	testimage.FillBackground = true
-	if c := []color.Color{testimage.At(0, 0), color.NRGBA{0, 0, 0, 255}}; c[0] != c[1] {
-		t.Error("excepted ", c[1], ", returned ", c[0])
-	}
-
 }
 
 func Test_Image_Mix(t *testing.T) {

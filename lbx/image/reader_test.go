@@ -42,16 +42,14 @@ func Test_Decode(t *testing.T) {
 
 	expected := [2]Image{
 		Image{
-			Pix:            []uint8{0, 11, 11, 10, 0, 0, 0, 0, 200, 200, 200, 200},
-			Stride:         4,
-			Rect:           image.Rect(0, 0, 4, 3),
-			FillBackground: true,
+			Pix:    []uint8{0, 11, 11, 10, 0, 0, 0, 0, 200, 200, 200, 200},
+			Stride: 4,
+			Rect:   image.Rect(0, 0, 4, 3),
 		},
 		Image{
-			Pix:            []uint8{200, 200, 200, 200, 10, 10, 11, 11, 0, 0, 0, 0},
-			Stride:         4,
-			Rect:           image.Rect(0, 0, 4, 3),
-			FillBackground: true,
+			Pix:    []uint8{200, 200, 200, 200, 10, 10, 11, 11, 200, 200, 200, 200},
+			Stride: 4,
+			Rect:   image.Rect(0, 0, 4, 3),
 		},
 	}
 
@@ -93,10 +91,6 @@ func Test_Decode(t *testing.T) {
 	}
 
 	if c := []image.Rectangle{decoded.Frames[1].Rect, expected[1].Rect}; !c[0].Size().Eq(c[1].Size()) {
-		t.Error("excepted ", c[1], ", returned ", c[0])
-	}
-
-	if c := []bool{decoded.Frames[1].FillBackground, expected[1].FillBackground}; c[0] != c[1] {
 		t.Error("excepted ", c[1], ", returned ", c[0])
 	}
 }

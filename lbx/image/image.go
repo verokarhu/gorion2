@@ -13,12 +13,11 @@ type Animation struct {
 type Palette [256]color.Color
 
 type Image struct {
-	Pix            []uint8
-	Visible        []bool
-	Stride         int
-	Rect           image.Rectangle
-	Palette        Palette
-	FillBackground bool
+	Pix     []uint8
+	Visible []bool
+	Stride  int
+	Rect    image.Rectangle
+	Palette Palette
 }
 
 var color_missing = color.NRGBA{1, 2, 3, 4}
@@ -39,10 +38,6 @@ func (i *Image) At(x, y int) color.Color {
 		}
 	}
 
-	if i.FillBackground {
-		return color_black
-	}
-
 	return color_transparent
 }
 
@@ -60,7 +55,7 @@ func NewImage(r image.Rectangle) *Image {
 		pal[i] = color_missing
 	}
 
-	return &Image{pix, vis, w, r, pal, false}
+	return &Image{pix, vis, w, r, pal}
 }
 
 // Mix grabs colors missing from Image's palette from override
@@ -73,7 +68,7 @@ func (i *Image) Mix(override Palette) {
 }
 
 func (i *Image) Copy() (cop Image) {
-	cop = Image{make([]uint8, len(i.Pix)), make([]bool, len(i.Visible)), i.Stride, i.Rect, i.Palette, i.FillBackground}
+	cop = Image{make([]uint8, len(i.Pix)), make([]bool, len(i.Visible)), i.Stride, i.Rect, i.Palette}
 	for k, v := range i.Pix {
 		cop.Pix[k] = v
 	}
@@ -99,12 +94,6 @@ func Blend(base Image, override Image) (result Image) {
 func (anim Animation) Mix(override Palette) {
 	for k, _ := range anim.Frames {
 		anim.Frames[k].Mix(override)
-	}
-}
-
-func (anim Animation) SetFillBackground(flag bool) {
-	for k, _ := range anim.Frames {
-		anim.Frames[k].FillBackground = flag
 	}
 }
 

@@ -70,7 +70,6 @@ func Decode(r io.ReadSeeker) (anim Animation, err error) {
 		r.Seek(int64(h.Offsets[i]), 0)
 
 		img := *NewImage(image.Rect(0, 0, int(h.Width), int(h.Height)))
-		img.FillBackground = sh.Flags&FillBackground != 0
 		img.Mix(p)
 
 		var numPix, yIndent, t uint16
