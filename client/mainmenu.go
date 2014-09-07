@@ -22,9 +22,9 @@ func (s *state) mainmenu() {
 
 	s.spr.Put(MM_Background, Resname[4])
 
-	s.buttons = []gui.ButtonMap{
-		*gui.NewButtonMap(415, 172, s.rw.GetSize(), s.spr.Put(MMButton_Continue, Resname[6]), s.galaxymap),
-		*gui.NewButtonMap(415, 285, s.rw.GetSize(), s.spr.Put(MMButton_QuitGame, Resname[7]), s.rw.Close),
+	s.buttons = gui.Buttons{
+		*gui.NewButton(415, 172, s.rw.GetSize(), s.spr.Put(MMButton_Continue, Resname[6]), s.galaxymap),
+		*gui.NewButton(415, 285, s.rw.GetSize(), s.spr.Put(MMButton_QuitGame, Resname[7]), s.rw.Close),
 	}
 
 	s.controlsDisabled = true

@@ -23,7 +23,7 @@ type state struct {
 	rw               *sf.RenderWindow
 	tex              res.TexMap
 	spr              res.SpriteMap
-	buttons          []gui.ButtonMap
+	buttons          gui.Buttons
 	controlsDisabled bool
 }
 
