@@ -20,6 +20,8 @@ func (s *state) galaxymap() {
 
 	s.spr.Put(GM_Sprite, Resname[5]).SetLoop(true)
 	s.spr.Put(GM_Sprite2, Resname[1]).SetLoop(true)
+
+	s.clearButtons()
 }
 
 func (s *state) runGalaxyMap() {

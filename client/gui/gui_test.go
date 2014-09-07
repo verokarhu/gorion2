@@ -19,8 +19,8 @@ func Test_scalePosition(t *testing.T) {
 	}
 }
 
-func Test_ButtonMap_Contains(t *testing.T) {
-	bm := ButtonMap{image.Rect(2, 2, 8, 8), nil, false, nil}
+func Test_Button_MouseOver(t *testing.T) {
+	bm := Button{image.Rect(2, 2, 8, 8), nil, false, nil}
 
 	if bm.MouseOver(sf.Vector2i{1, 3}) {
 		t.Error("returned true")
@@ -38,10 +38,6 @@ func Test_ButtonMap_Contains(t *testing.T) {
 		t.Error("returned true")
 	}
 
-	if bm.Visible {
-		t.Error("returned true")
-	}
-
 	if !bm.MouseOver(sf.Vector2i{2, 2}) {
 		t.Error("returned false")
 	}
@@ -53,8 +49,16 @@ func Test_ButtonMap_Contains(t *testing.T) {
 	if !bm.MouseOver(sf.Vector2i{8, 8}) {
 		t.Error("returned false")
 	}
+}
 
-	if !bm.Visible {
+func Test_Button_Update(t *testing.T) {
+	bm := Button{image.Rect(2, 2, 8, 8), nil, false, nil}
+
+	if bm.Update(sf.Vector2i{1, 3}); bm.Visible {
+		t.Error("returned true")
+	}
+
+	if bm.Update(sf.Vector2i{8, 8}); !bm.Visible {
 		t.Error("returned true")
 	}
 }

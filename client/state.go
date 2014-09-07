@@ -37,11 +37,11 @@ func (s *state) run() {
 		s.runGalaxyMap()
 	}
 
-	for _, v := range s.buttons {
-		if v.Visible {
-			s.rw.Draw(v.Sprite.NextFrame(), sf.DefaultRenderStates())
+	s.buttons.ForEach(func(b *gui.Button) {
+		if b.Visible {
+			s.rw.Draw(b.Sprite.NextFrame(), sf.DefaultRenderStates())
 		}
-	}
+	})
 }
 
 func (s *state) handleMouse(ev sf.Event) {
@@ -49,14 +49,17 @@ func (s *state) handleMouse(ev sf.Event) {
 		return
 	}
 
-	for k, v := range s.buttons {
-		if s.buttons[k].MouseOver(sf.MouseGetPosition(s.rw)) {
+	mousepos := sf.MouseGetPosition(s.rw)
+	s.buttons.ForEach(func(b *gui.Button) {
+		b.Update(mousepos)
+
+		if b.MouseOver(mousepos) {
 			switch ev.(type) {
 			case sf.EventMouseButtonPressed:
-				v.ClickFunc()
+				b.ClickFunc()
 			}
 		}
-	}
+	})
 }
 
 func (s *state) playMusic(name string, loop bool) {
@@ -73,4 +76,8 @@ func (s *state) playMusic(name string, loop bool) {
 	music.SetLoop(loop)
 	music.Play()
 	s.music = music
+}
+
+func (s *state) clearButtons() {
+	s.buttons = gui.Buttons{}
 }

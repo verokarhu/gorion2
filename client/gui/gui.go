@@ -23,13 +23,11 @@ func scalePosition(pos sf.Vector2i, res sf.Vector2u) (v sf.Vector2f) {
 }
 
 func (b *Button) MouseOver(pos sf.Vector2i) bool {
-	b.Visible = false
-
 	if pos.X >= b.Rect.Min.X && pos.X <= b.Rect.Max.X && pos.Y >= b.Rect.Min.Y && pos.Y <= b.Rect.Max.Y {
-		b.Visible = true
+		return true
 	}
 
-	return b.Visible
+	return false
 }
 
 func NewButton(xpos, ypos int, res sf.Vector2u, spr *AnimatedSprite, clickevent func()) *Button {
@@ -37,4 +35,14 @@ func NewButton(xpos, ypos int, res sf.Vector2u, spr *AnimatedSprite, clickevent 
 	spr.SetPosition(scalePosition(sf.Vector2i{xpos, ypos}, res))
 
 	return &Button{image.Rect(xpos, ypos, xpos+w, ypos+h), spr, false, clickevent}
+}
+
+func (b *Button) Update(pos sf.Vector2i) {
+	b.Visible = b.MouseOver(pos)
+}
+
+func (b Buttons) ForEach(f func(*Button)) {
+	for k, _ := range b {
+		f(&b[k])
+	}
 }
