@@ -7,10 +7,11 @@ import (
 
 // AnimatedSprite handles animation of sf.Sprites
 type AnimatedSprite struct {
-	sprites      []*sf.Sprite
-	currentframe int
-	framedelay   int
-	loop         bool
+	sprites       []*sf.Sprite
+	currentframe  int
+	framedelay    int
+	loop          bool
+	width, height int
 }
 
 func NewAnimatedSprite(numframes int, framedelay int, tex *sf.Texture) *AnimatedSprite {
@@ -52,7 +53,7 @@ func NewAnimatedSprite(numframes int, framedelay int, tex *sf.Texture) *Animated
 		s[x+rows*defs.Sheetwidth] = sprite
 	}
 
-	return &AnimatedSprite{s, 0, framedelay, false}
+	return &AnimatedSprite{s, 0, framedelay, false, w, h}
 }
 
 func (s *AnimatedSprite) NextFrame() *sf.Sprite {
@@ -73,4 +74,14 @@ func (s *AnimatedSprite) SetLoop(l bool) {
 
 func (s *AnimatedSprite) Stopped() bool {
 	return s.currentframe+1 == len(s.sprites) && !s.loop
+}
+
+func (s *AnimatedSprite) GetSize() sf.Vector2i {
+	return sf.Vector2i{s.width, s.height}
+}
+
+func (s *AnimatedSprite) SetPosition(pos sf.Vector2f) {
+	for _, v := range s.sprites {
+		v.SetPosition(pos)
+	}
 }

@@ -7,16 +7,15 @@ import (
 )
 
 type ButtonMap struct {
-	Rect         image.Rectangle
-	SpriteNumber int
-	Visible      bool
-	ClickFunc    func()
+	Rect      image.Rectangle
+	Sprite    *AnimatedSprite
+	Visible   bool
+	ClickFunc func()
 }
 
-// CalcPosVec calculates a resolution independent vector of the x,y position
-func CalcPosVec(pos sf.Vector2i, res sf.Vector2u) (v sf.Vector2f) {
-	v.X = float32(pos.X) / float32(res.X)
-	v.Y = float32(pos.Y) / float32(res.Y)
+func scalePosition(pos sf.Vector2i, res sf.Vector2u) (v sf.Vector2f) {
+	v.X = float32(pos.X) * float32(res.X) / 640.0
+	v.Y = float32(pos.Y) * float32(res.Y) / 480
 
 	return
 }
@@ -31,6 +30,9 @@ func (b *ButtonMap) MouseOver(pos sf.Vector2i) bool {
 	return b.Visible
 }
 
-func NewButtonMap(x, y, width, height, spriteno int, clickevent func()) *ButtonMap {
-	return &ButtonMap{image.Rect(x, y, x+width, y+height), spriteno, false, clickevent}
+func NewButtonMap(xpos, ypos int, res sf.Vector2u, spr *AnimatedSprite, clickevent func()) *ButtonMap {
+	w, h := spr.GetSize().X, spr.GetSize().Y
+	spr.SetPosition(scalePosition(sf.Vector2i{xpos, ypos}, res))
+
+	return &ButtonMap{image.Rect(xpos, ypos, xpos+w, ypos+h), spr, false, clickevent}
 }
