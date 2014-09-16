@@ -10,7 +10,7 @@ import (
 
 type Resource struct {
 	cache map[string][]byte
-	mutex sync.Mutex
+	sync.Mutex
 }
 
 type resfile struct {
@@ -52,8 +52,8 @@ func (r *Resource) Get(key string) []byte {
 }
 
 func (r *Resource) Put(key string, value []byte) {
-	r.mutex.Lock()
-	defer r.mutex.Unlock()
+	r.Lock()
+	defer r.Unlock()
 
 	if r.cache == nil {
 		r.cache = make(map[string][]byte)
