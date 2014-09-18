@@ -66,37 +66,36 @@ func importImage(dirname string, dumpdir string, file ImagePair) error {
 	}
 
 	for k, v := range data {
-		fmt.Printf("decoding %s-%d:  ", file.Filename, k)
+		fmt.Println(fmt.Sprintf("decoding %s-%d:  ", file.Filename, k))
 
 		data, err := li.Decode(bytes.NewReader(v))
+		fmt.Println()
 		if err != nil {
 			fmt.Println("skipping", file.Filename, k, ":", err)
-		}
+		} else {
+			name := fmt.Sprintf("%s/%s_%d", dumpdir, file.Filename, k)
+			switch file.Palette {
+			case "all":
+				for palname, pal := range pals {
+					filename := fmt.Sprintf("%s-p_%s", name, palname)
+					framescopy := data.Copy()
+					framescopy.Mix(pal)
+					compress(framescopy, filename, &wg)
+				}
 
-		fmt.Println()
+				filename := fmt.Sprintf("%s-p_none", name)
+				compress(data.Copy(), filename, &wg)
 
-		name := fmt.Sprintf("%s/%s_%d", dumpdir, file.Filename, k)
-		switch file.Palette {
-		case "all":
-			for palname, pal := range pals {
-				filename := fmt.Sprintf("%s-p_%s", name, palname)
-				framescopy := data.Copy()
-				framescopy.Mix(pal)
-				compress(framescopy, filename, &wg)
+			case "none":
+				compress(data, name, &wg)
+
+			default:
+				data.Mix(pals[file.Palette])
+				compress(data, name, &wg)
 			}
 
-			filename := fmt.Sprintf("%s-p_none", name)
-			compress(data.Copy(), filename, &wg)
-
-		case "none":
-			compress(data, name, &wg)
-
-		default:
-			data.Mix(pals[file.Palette])
-			compress(data, name, &wg)
+			wg.Wait()
 		}
-
-		wg.Wait()
 	}
 
 	return nil
