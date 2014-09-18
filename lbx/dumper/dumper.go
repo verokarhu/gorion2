@@ -95,9 +95,10 @@ func importImage(dirname string, dumpdir string, file ImagePair) error {
 			data.Mix(pals[file.Palette])
 			compress(data, name, &wg)
 		}
+
+		wg.Wait()
 	}
 
-	wg.Wait()
 	return nil
 }
 
